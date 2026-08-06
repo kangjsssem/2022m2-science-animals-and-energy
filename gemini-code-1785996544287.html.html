@@ -1,0 +1,1504 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>동물과 에너지 - 빈칸 채우기 형성평가 (최종본)</title>
+  <!-- 이미지 저장을 위한 html2canvas 라이브러리 -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <style>
+    :root {
+      --primary-color: #6C5CE7;
+      --primary-light: #A29BFE;
+      --bg-color: #F0F3F8;
+      --card-bg: #FFFFFF;
+      --text-main: #2D3436;
+      --correct-color: #00B894;
+      --wrong-color: #FF7675;
+      --accent-color: #FDCB6E;
+      --teacher-color: #0984E3;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .app-container {
+      width: 100%;
+      max-width: 800px;
+      background-color: var(--card-bg);
+      border-radius: 24px;
+      box-shadow: 0 12px 32px rgba(108, 92, 231, 0.12);
+      padding: 32px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .screen {
+      display: none;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .screen.active {
+      display: flex;
+    }
+
+    h1 {
+      font-size: 2rem;
+      color: var(--primary-color);
+      text-align: center;
+    }
+
+    p.subtitle {
+      text-align: center;
+      color: #636E72;
+      font-size: 1rem;
+    }
+
+    /* Mode Selection Tabs */
+    .mode-tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .mode-btn {
+      flex: 1;
+      padding: 14px;
+      border: 2px solid #E9ECEF;
+      background-color: #F8F9FA;
+      border-radius: 12px;
+      font-weight: bold;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .mode-btn.active {
+      border-color: var(--primary-color);
+      background-color: #ECE8FF;
+      color: var(--primary-color);
+    }
+
+    .teacher-top-btn {
+      background-color: #EBF5FF;
+      border: 2px dashed var(--teacher-color);
+      color: var(--teacher-color);
+      padding: 12px;
+      border-radius: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s;
+    }
+    .teacher-top-btn:hover {
+      background-color: #D6E8FF;
+    }
+
+    /* Input Styles */
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex: 1;
+    }
+
+    .input-group label {
+      font-weight: bold;
+      color: var(--text-main);
+      font-size: 0.95rem;
+    }
+
+    .input-field {
+      padding: 14px 16px;
+      border: 2px solid #E9ECEF;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      outline: none;
+      transition: border-color 0.2s;
+      background-color: white;
+    }
+
+    .input-field:focus {
+      border-color: var(--primary-color);
+    }
+
+    .code-input-field {
+      text-align: center;
+      font-size: 1.8rem;
+      letter-spacing: 6px;
+      font-weight: 800;
+      color: var(--primary-color);
+    }
+
+    /* Team Selection Grid */
+    .team-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+
+    @media (max-width: 500px) {
+      .team-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    .team-card {
+      padding: 12px;
+      border-radius: 12px;
+      border: 2px solid #E9ECEF;
+      text-align: center;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .team-card.selected {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px var(--primary-light);
+      transform: scale(1.03);
+    }
+
+    /* Team Colors */
+    .team-red { background-color: #FF7675; color: white; }
+    .team-orange { background-color: #FAB1A0; color: #2D3436; }
+    .team-yellow { background-color: #FFEAA7; color: #2D3436; }
+    .team-green { background-color: #55E6C1; color: #2D3436; }
+    .team-blue { background-color: #74B9FF; color: white; }
+    .team-purple { background-color: #A29BFE; color: white; }
+    .team-white { background-color: #FFFFFF; color: #2D3436; border-color: #DFE6E9 !important; }
+    .team-black { background-color: #2D3436; color: white; }
+
+    /* Buttons */
+    .btn {
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      padding: 16px 24px;
+      font-size: 1.05rem;
+      font-weight: 700;
+      border-radius: 16px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 12px rgba(108, 92, 231, 0.2);
+    }
+
+    .btn:hover {
+      background-color: #5B4BC4;
+      transform: translateY(-2px);
+    }
+
+    .btn:disabled {
+      background-color: #B2BEC3;
+      cursor: not-allowed;
+      box-shadow: none;
+      transform: none;
+    }
+
+    .btn-secondary { background-color: #00CEC9; }
+    .btn-secondary:hover { background-color: #00B5B2; }
+    .btn-teacher { background-color: var(--teacher-color); }
+    .btn-teacher:hover { background-color: #076B9A; }
+    .btn-danger { background-color: #D63031; }
+    .btn-danger:hover { background-color: #B02324; }
+
+    /* Unit Grid */
+    .unit-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 10px;
+    }
+
+    .unit-card {
+      background: #F8F9FA;
+      border: 2px solid #E9ECEF;
+      padding: 14px 16px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      font-weight: 600;
+      transition: all 0.2s;
+      text-align: center;
+    }
+
+    .unit-card:hover {
+      border-color: var(--primary-light);
+      background-color: #F3F0FF;
+    }
+
+    .unit-card.selected {
+      border-color: var(--primary-color);
+      background-color: #ECE8FF;
+      color: var(--primary-color);
+    }
+
+    /* Lobby UI Styles */
+    .lobby-box {
+      background-color: #F8F9FA;
+      border: 2px solid #E9ECEF;
+      border-radius: 20px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .lobby-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid #E9ECEF;
+      padding-bottom: 12px;
+    }
+
+    .leader-badge {
+      background-color: #FDCB6E;
+      color: #D63031;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      font-weight: bold;
+    }
+
+    .member-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    .member-card {
+      background: white;
+      border: 2px solid #E9ECEF;
+      padding: 12px;
+      border-radius: 14px;
+      text-align: center;
+      font-weight: bold;
+      font-size: 0.95rem;
+      position: relative;
+    }
+
+    .member-card.is-leader::after {
+      content: '👑 대표';
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      background: #FDCB6E;
+      font-size: 0.7rem;
+      padding: 2px 6px;
+      border-radius: 8px;
+    }
+
+    /* Game UI */
+    .status-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #F8F9FA;
+      padding: 14px 18px;
+      border-radius: 16px;
+      font-weight: bold;
+    }
+
+    .timer-container {
+      width: 100%;
+      height: 8px;
+      background-color: #E9ECEF;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .timer-bar {
+      height: 100%;
+      width: 100%;
+      background-color: var(--accent-color);
+      transition: width 1s linear;
+    }
+
+    .question-box {
+      background-color: #F8F9FA;
+      border: 2px dashed var(--primary-light);
+      padding: 36px 28px;
+      border-radius: 20px;
+      min-height: 170px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      text-align: left;
+      font-size: 1.25rem;
+      line-height: 2.2;
+      letter-spacing: -0.2px;
+      word-break: keep-all;
+      overflow-wrap: break-word;
+      width: 100%;
+    }
+
+    .options-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    @media (max-width: 500px) {
+      .options-grid { grid-template-columns: 1fr; }
+    }
+
+    .option-btn {
+      background: white;
+      border: 2px solid #E9ECEF;
+      padding: 16px;
+      border-radius: 16px;
+      font-size: 1.05rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .option-btn:hover {
+      border-color: var(--primary-light);
+      background-color: #F8F9FA;
+    }
+
+    .option-btn.correct {
+      background-color: var(--correct-color) !important;
+      color: white !important;
+      border-color: var(--correct-color) !important;
+    }
+
+    .option-btn.wrong {
+      background-color: var(--wrong-color) !important;
+      color: white !important;
+      border-color: var(--wrong-color) !important;
+    }
+
+    /* Modal */
+    .modal-overlay {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      z-index: 100;
+    }
+
+    .modal-content {
+      background: white;
+      border-radius: 20px;
+      padding: 28px;
+      width: 100%;
+      max-width: 500px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* Waiting Finish Screen UI */
+    .waiting-spinner {
+      width: 50px;
+      height: 50px;
+      border: 5px solid #E9ECEF;
+      border-top: 5px solid var(--primary-color);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 20px auto;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Result Card */
+    .result-card {
+      background: #FFFFFF;
+      border: 2px solid #E9ECEF;
+      border-radius: 20px;
+      padding: 24px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .user-tag {
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: var(--primary-color);
+    }
+
+    .badge {
+      background-color: var(--accent-color);
+      color: #D63031;
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 1.1rem;
+      font-weight: bold;
+    }
+
+    .score-text {
+      font-size: 2.5rem;
+      font-weight: 900;
+      color: var(--primary-color);
+    }
+
+    .meta-info {
+      font-size: 0.95rem;
+      color: #636E72;
+      background: #F8F9FA;
+      padding: 8px 16px;
+      border-radius: 12px;
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      width: 100%;
+    }
+
+    .team-stats-box {
+      width: 100%;
+      background: #F1F2F6;
+      border-radius: 16px;
+      padding: 16px;
+      margin-top: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      text-align: left;
+    }
+
+    .team-stats-title {
+      font-weight: bold;
+      font-size: 1.05rem;
+      color: var(--primary-color);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .team-members-list {
+      font-size: 0.85rem;
+      color: #57606F;
+      word-break: break-all;
+      background: white;
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1px solid #E9ECEF;
+      line-height: 1.5;
+    }
+
+    .review-list {
+      width: 100%;
+      max-height: 200px;
+      overflow-y: auto;
+      text-align: left;
+      background: #F8F9FA;
+      padding: 12px;
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .review-item {
+      background: white;
+      padding: 10px 12px;
+      border-radius: 8px;
+      border-left: 4px solid var(--wrong-color);
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
+
+    /* 교시 모드 전용 스타일 */
+    .teacher-code-display {
+      font-size: 3.5rem;
+      font-weight: 900;
+      color: var(--teacher-color);
+      text-align: center;
+      letter-spacing: 10px;
+      background: #EBF5FF;
+      padding: 16px;
+      border-radius: 20px;
+      border: 3px dashed var(--teacher-color);
+    }
+
+    .teacher-team-card {
+      background: white;
+      border: 2px solid #E9ECEF;
+      border-radius: 16px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .teacher-team-card h4 {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .progress-bar-bg {
+      height: 10px;
+      background: #E9ECEF;
+      border-radius: 5px;
+      overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: var(--teacher-color);
+      width: 0%;
+      transition: width 0.3s;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+    <!-- 1. 메인 화면 (학생 진입) -->
+    <div id="start-screen" class="screen active">
+      <div class="teacher-top-btn" onclick="switchScreen('teacher-screen')">
+        👨‍🏫 선생님이신가요? [교사 모드 진입]
+      </div>
+
+      <h1>🧍 동물과 에너지 형성평가</h1>
+      <p class="subtitle">중학교 2학년 과학 빈칸 채우기 게임</p>
+      
+      <!-- 게임 모드 선택 -->
+      <div class="mode-tabs">
+        <button id="btn-mode-individual" class="mode-btn active" onclick="selectGameMode('individual')">👤 개인전</button>
+        <button id="btn-mode-team" class="mode-btn" onclick="selectGameMode('team')">👥 팀전</button>
+      </div>
+
+      <!-- 팀전일 경우 참여 코드 입력 -->
+      <div class="input-group" id="code-input-group" style="display: none;">
+        <label for="room-code">4자리 참여 코드:</label>
+        <input type="text" id="room-code" class="input-field code-input-field" placeholder="0000" maxlength="4" inputmode="numeric">
+      </div>
+
+      <div class="input-group">
+        <label for="nickname">학생 이름 또는 별명:</label>
+        <input type="text" id="nickname" class="input-field" placeholder="예: 2학년3반 김과학" maxlength="12">
+      </div>
+
+      <!-- 팀전 전용 팀 선택 창 -->
+      <div id="team-select-section" style="display: none;">
+        <label style="font-weight: bold; display: block; margin-bottom: 8px;">팀 선택:</label>
+        <div class="team-grid">
+          <div class="team-card team-red" onclick="selectTeam('빨강팀')">빨강</div>
+          <div class="team-card team-orange" onclick="selectTeam('주황팀')">주황</div>
+          <div class="team-card team-yellow" onclick="selectTeam('노랑팀')">노랑</div>
+          <div class="team-card team-green" onclick="selectTeam('초록팀')">초록</div>
+          <div class="team-card team-blue" onclick="selectTeam('파랑팀')">파랑</div>
+          <div class="team-card team-purple" onclick="selectTeam('보라팀')">보라</div>
+          <div class="team-card team-white" onclick="selectTeam('흰색팀')">흰색</div>
+          <div class="team-card team-black" onclick="selectTeam('검정팀')">검정</div>
+        </div>
+      </div>
+
+      <div>
+        <label style="font-weight: bold; display: block; margin-bottom: 8px;">단원 선택:</label>
+        <div class="unit-list" id="unit-list"></div>
+      </div>
+
+      <button class="btn" id="start-btn" onclick="handleStartClick()">시험 시작하기 🚀</button>
+    </div>
+
+    <!-- 1-B. 교사 모드 화면 -->
+    <div id="teacher-screen" class="screen">
+      <h1>👨‍🏫 교사 전용 관리 화면</h1>
+      
+      <div id="teacher-init-box" style="display: flex; flex-direction: column; gap: 16px;">
+        <p style="text-align: center; color: #636E72;">새로운 팀전 게임 세션을 생성하세요.</p>
+        <button class="btn btn-teacher" onclick="createNewGameRoom()">🎲 새 게임 방 생성 (4자리 코드 발급)</button>
+        <button class="btn btn-secondary" onclick="switchScreen('start-screen')">⬅️ 메인으로 돌아가기</button>
+      </div>
+
+      <div id="teacher-active-box" style="display: none; flex-direction: column; gap: 16px;">
+        <div>
+          <p style="text-align: center; font-weight: bold; color: #636E72; margin-bottom: 6px;">학생들에게 이 코드를 안내하세요</p>
+          <div class="teacher-code-display" id="display-room-code">0000</div>
+        </div>
+
+        <div class="lobby-box">
+          <h3>📊 실시간 팀별 현황 및 완주 상태</h3>
+          <div id="teacher-teams-status" style="display: flex; flex-direction: column; gap: 12px; margin-top: 10px;">
+            <!-- 팀 현황이 동적으로 들어옴 -->
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 10px;">
+          <button class="btn btn-danger" style="flex: 1;" onclick="forceFinishGame()">🚨 게임 강제 종료 (전체 결과 공개)</button>
+          <button class="btn btn-secondary" style="flex: 1;" onclick="resetTeacherRoom()">🔄 방 닫기/새로 만들기</button>
+        </div>
+
+        <div id="teacher-summary-box" class="team-stats-box" style="display: none;">
+          <div class="team-stats-title">🏆 학급 전체 팀 성취도 요약 (캡처용)</div>
+          <div id="teacher-summary-list" style="display: flex; flex-direction: column; gap: 8px; font-size: 0.95rem; margin-top: 6px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 1-C. 학생 팀 대기실 화면 -->
+    <div id="lobby-screen" class="screen">
+      <h1>👥 팀 대기실</h1>
+      <p class="subtitle" id="lobby-info-text">팀원들이 입장하길 기다리고 있습니다.</p>
+
+      <div class="lobby-box">
+        <div class="lobby-header">
+          <h3 id="lobby-team-title">🚩 팀 정보 (0명)</h3>
+          <span class="leader-badge" id="my-role-badge">팀원</span>
+        </div>
+        <p style="font-size: 0.9rem; color: #636E72;">현재 접속 중인 팀원 목록:</p>
+        <div class="member-grid" id="lobby-member-grid"></div>
+      </div>
+
+      <div style="text-align: center; color: #636E72; font-size: 0.95rem;" id="lobby-status-msg">
+        팀 대표가 '시작하기' 버튼을 누르면 시험이 시작됩니다.
+      </div>
+
+      <button class="btn" id="team-start-btn" onclick="startTeamQuiz()" disabled>🚀 시작하기 (팀 대표 전용)</button>
+    </div>
+
+    <!-- 2. 게임 화면 -->
+    <div id="game-screen" class="screen">
+      <div class="status-bar">
+        <div id="player-display">플레이어: -</div>
+        <div>점수: <span id="score">0</span>점</div>
+        <div id="progress">1 / 10</div>
+      </div>
+
+      <div class="timer-container">
+        <div id="timer-bar" class="timer-bar"></div>
+      </div>
+
+      <div class="question-box" id="question-box"></div>
+      <div class="options-grid" id="options-grid"></div>
+    </div>
+
+    <!-- 2-B. 동시 완주 대기 화면 -->
+    <div id="waiting-finish-screen" class="screen">
+      <div style="text-align: center; padding: 40px 20px;">
+        <h2>⏳ 문제 풀이 완료!</h2>
+        <p style="margin-top: 12px; color: #636E72; font-size: 1.1rem; line-height: 1.6;">
+          다른 팀원들이 완료하길 기다리는 중...<br>
+          팀원 전원이 완료하거나 선생님이 종료하면 결과 카드가 열립니다!
+        </p>
+        <div class="waiting-spinner"></div>
+        <p id="waiting-count-text" style="font-weight: bold; color: var(--primary-color); margin-top: 10px;">완료 현황: 계산 중...</p>
+      </div>
+    </div>
+
+    <!-- 3. 결과 화면 -->
+    <div id="result-screen" class="screen">
+      <h1>🎉 최종 결과 카드</h1>
+      
+      <!-- 이미지로 캡처될 영역 -->
+      <div id="capture-area" class="result-card">
+        <div class="user-tag" id="result-nickname">학번/이름</div>
+        <div class="score-text" id="final-score">0점</div>
+        <div class="badge" id="rank-badge">칭호 산출 중...</div>
+        <p id="correct-count-text">0문제 중 0문제를 맞췄습니다.</p>
+        
+        <div class="meta-info">
+          <span>⏱️ 내 소요시간: <strong id="total-time">-</strong></span>
+        </div>
+
+        <!-- 팀전 결과 정보 영역 -->
+        <div id="team-result-box" class="team-stats-box" style="display: none;">
+          <div class="team-stats-title">
+            <span id="team-name-badge">🚩 팀 정보</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-size: 0.95rem;">
+            <span>팀 평균 점수: <strong id="team-avg-score" style="color: var(--primary-color);">0점</strong></span>
+            <span>팀 평균 시간: <strong id="team-avg-time" style="color: var(--primary-color);">0초</strong></span>
+          </div>
+          <div style="font-size: 0.85rem; font-weight: bold; margin-top: 6px;">참여한 팀원 전체 (익명 무작위 순서):</div>
+          <div class="team-members-list" id="team-members-list">-</div>
+        </div>
+      </div>
+
+      <div id="review-container" style="width: 100%; display: none;">
+        <h4 style="margin-bottom: 8px;">오답 복습:</h4>
+        <div class="review-list" id="review-list"></div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 10px; width: 100%;">
+        <button class="btn btn-secondary" onclick="downloadResultImage()">📸 결과 이미지 저장하기</button>
+        <div style="display: flex; gap: 10px;">
+          <button class="btn" style="flex: 1; background-color: #74B9FF;" onclick="toggleReview()">오답 확인</button>
+          <button class="btn" style="flex: 1;" onclick="resetToMain()">메인으로</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 오답 해설 모달 -->
+    <div class="modal-overlay" id="modal">
+      <div class="modal-content">
+        <h3 id="modal-title" style="color: var(--wrong-color);">오답입니다!</h3>
+        <p id="modal-answer" style="font-weight: bold;"></p>
+        <p id="modal-explanation" style="color: #636E72; font-size: 0.95rem;"></p>
+        <button class="btn" onclick="closeModalNext()">다음 문제로 ➡️</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // [전체 문제 데이터셋] 총 157문항 (1~6단원 전체 반영)
+    const quizData = [
+      // --- 1. 영양소 단원 (25문항) ---
+      { id: 1, unit: "1. 영양소", question: "음식물에 들어 있으며 생물이 살아가는 데 필요한 물질로, 몸을 구성하거나 생명 활동을 조절하고 에너지원으로도 쓰이는 물질을 ( ? )라고 한다.", options: ["영양소", "노폐물", "산소", "이산화 탄소"], answer: "영양소", explanation: "생물이 살아가는 데 필요한 물질로 몸을 구성하고 에너지원 등으로 쓰이는 물질은 영양소입니다." },
+      { id: 2, unit: "1. 영양소", question: "영양소 중 섭취 시 체내에서 에너지원으로 사용되는 탄수화물, 단백질, 지방을 묶어서 ( ? )이라고 한다.", options: ["3대 영양소", "부영양소", "무기염류", "바이타민"], answer: "3대 영양소", explanation: "에너지원으로 이용되는 탄수화물, 단백질, 지방을 3대 영양소라고 합니다." },
+      { id: 3, unit: "1. 영양소", question: "우리 몸의 주요 에너지원이며, 사용하고 남은 것은 지방으로 저장되는 영양소는 ( ? )이다.", options: ["탄수화물", "단백질", "무기염류", "바이타민"], answer: "탄수화물", explanation: "주요 에너지원이며 남은 것은 지방으로 저장되는 영양소는 탄수화물입니다." },
+      { id: 4, unit: "1. 영양소", question: "탄수화물이 사용되고 남으면 체내에서 ( ? )의 형태로 저장된다.", options: ["지방", "단백질", "무기염류", "물"], answer: "지방", explanation: "사용하고 남은 탄수화물은 지방으로 전환되어 저장됩니다." },
+      { id: 5, unit: "1. 영양소", question: "밥, 빵, 감자 등에 풍부하게 함유되어 있는 주요 에너지원 영양소는 ( ? )이다.", options: ["탄수화물", "단백질", "지방", "바이타민"], answer: "탄수화물", explanation: "밥, 빵, 감자 등은 대표적인 탄수화물 식품입니다." },
+      { id: 6, unit: "1. 영양소", question: "에너지원으로 쓰이며, 살코기나 생선 살에 많이 들어 있고 몸을 구성하는 주성분인 영양소는 ( ? )이다.", options: ["단백질", "탄수화물", "지방", "무기염류"], answer: "단백질", explanation: "몸을 구성하는 주성분이자 살코기, 생선 살에 풍부한 영양소는 단백질입니다." },
+      { id: 7, unit: "1. 영양소", question: "살코기, 생선 살 등 동물성 식품에 많이 포함되어 있는 영양소는 ( ? )이다.", options: ["단백질", "탄수화물", "지방", "바이타민"], answer: "단백질", explanation: "살코기와 생선 살은 단백질이 풍부하게 들어 있는 함유 식품입니다." },
+      { id: 8, unit: "1. 영양소", question: "에너지원 및 에너지 저장 물질로 이용되며 버터, 땅콩 등에 많이 들어 있는 영양소는 ( ? )이다.", options: ["지방", "단백질", "바이타민", "물"], answer: "지방", explanation: "버터, 땅콩 등에 풍부하며 에너지 저장 물질 역할을 하는 것은 지방입니다." },
+      { id: 9, unit: "1. 영양소", question: "버터, 땅콩과 같은 식품에 주로 많이 함유된 에너지원 영양소는 ( ? )이다.", options: ["지방", "탄수화물", "단백질", "무기염류"], answer: "지방", explanation: "버터와 땅콩에는 지방이 많이 들어 있습니다." },
+      { id: 10, unit: "1. 영양소", question: "치아와 뼈 등을 구성하고 몸의 기능을 조절하며, 칼슘·철 등이 해당하는 영양소는 ( ? )이다.", options: ["무기염류", "바이타민", "지방", "탄수화물"], answer: "무기염류", explanation: "치아, 뼈 구성 및 칼슘, 철, 나트륨 등을 포함하는 영양소는 무기염류입니다." },
+      { id: 11, unit: "1. 영양소", question: "칼슘, 칼륨, 나트륨, 철, 마그네슘 등은 영양소 중 ( ? )에 속한다.", options: ["무기염류", "바이타민", "단백질", "탄수화물"], answer: "무기염류", explanation: "칼슘, 칼륨, 나트륨, 철, 마그네슘은 무기염류의 대표적인 종류입니다." },
+      { id: 12, unit: "1. 영양소", question: "채소나 과일에 많이 들어 있으며, 에너지원으로 쓰이지는 않지만 적은 양으로 몸의 기능을 조절하는 영양소는 ( ? )이다.", options: ["바이타민", "단백질", "지방", "탄수화물"], answer: "바이타민", explanation: "적은 양으로 몸의 기능을 조절하고 채소, 과일에 풍부한 영양소는 바이타민입니다." },
+      { id: 13, unit: "1. 영양소", question: "우리 몸의 약 60 %~70 %를 구성하며, 여러 가지 물질을 운반하고 몸의 기능을 조절하는 물질은 ( ? )이다.", options: ["물", "지방", "탄수화물", "무기염류"], answer: "물", explanation: "우리 몸의 60 %~70 %를 차지하며 물질 운반을 돕는 성분은 물입니다." },
+      { id: 14, unit: "1. 영양소", question: "녹말을 검출할 때 사용하는 시약은 ( ? ) 용액이다.", options: ["아이오딘-아이오딘화 칼륨", "베네딕트", "수단 Ⅲ", "수산화 나트륨"], answer: "아이오딘-아이오딘화 칼륨", explanation: "녹말은 아이오딘-아이오딘화 칼륨 용액으로 검출합니다." },
+      { id: 15, unit: "1. 영양소", question: "녹말에 아이오딘-아이오딘화 칼륨 용액을 떨어뜨렸을 때 나타나는 색깔 변화는 ( ? )이다.", options: ["청람색", "황적색", "보라색", "선홍색"], answer: "청람색", explanation: "녹말과 아이오딘-아이오딘화 칼륨 용액이 반응하면 청람색으로 변합니다." },
+      { id: 16, unit: "1. 영양소", question: "아이오딘 반응을 통해 청람색으로 변하는 영양소는 ( ? )이다.", options: ["녹말", "포도당", "단백질", "지방"], answer: "녹말", explanation: "아이오딘 반응 시 청람색을 띠는 영양소는 녹말입니다." },
+      { id: 17, unit: "1. 영양소", question: "포도당과 같은 당을 검출할 때 사용하는 시약은 ( ? ) 용액이다.", options: ["베네딕트", "아이오딘-아이오딘화 칼륨", "수단 Ⅲ", "뷰렛"], answer: "베네딕트", explanation: "당(포도당)을 검출하기 위해 사용하는 검출 용액은 베네딕트 용액입니다." },
+      { id: 18, unit: "1. 영양소", question: "포도당에 베네딕트 용액을 넣고 중탕 가열하였을 때 나타나는 색깔 변화는 ( ? )이다.", options: ["황적색", "청람색", "보라색", "선홍색"], answer: "황적색", explanation: "포도당은 베네딕트 반응(중탕)을 통해 황적색으로 변합니다." },
+      { id: 19, unit: "1. 영양소", question: "베네딕트 반응을 일으키기 위해 용액을 넣은 후 반드시 수행해야 하는 가열 과정은 ( ? )이다.", options: ["중탕", "여과", "증발", "원심분리"], answer: "중탕", explanation: "베네딕트 용액을 반응시키기 위해서는 따뜻하게 중탕 가열해야 합니다." },
+      { id: 20, unit: "1. 영양소", question: "5 % 수산화 나트륨 수용액과 1 % 황산 구리(Ⅱ) 수용액을 혼합하여 만드는 단백질 검출용 용액은 ( ? ) 용액이다.", options: ["뷰렛", "베네딕트", "수단 Ⅲ", "아이오딘"], answer: "뷰렛", explanation: "5 % 수산화 나트륨 수용액과 1 % 황산 구리(Ⅱ) 수용액을 섞어 만든 검출 시약은 뷰렛 용액입니다." },
+      { id: 21, unit: "1. 영양소", question: "단백질 용액에 뷰렛 용액을 넣었을 때 나타나는 반응 색깔은 ( ? )이다.", options: ["보라색", "청람색", "황적색", "선홍색"], answer: "보라색", explanation: "단백질이 뷰렛 용액과 반응하면 보라색이 나타납니다." },
+      { id: 22, unit: "1. 영양소", question: "뷰렛 반응 결과 보라색으로 색깔이 변하는 영양소는 ( ? )이다.", options: ["단백질", "녹말", "포도당", "지방"], answer: "단백질", explanation: "뷰렛 반응 시 보라색을 나타내는 검출 영양소는 단백질입니다." },
+      { id: 23, unit: "1. 영양소", question: "지방을 검출할 때 반응시키는 검출 시약은 ( ? ) 용액이다.", options: ["수단 Ⅲ", "베네딕트", "뷰렛", "아이오딘-아이오딘화 칼륨"], answer: "수단 Ⅲ", explanation: "지방 검출 반응에 이용하는 용액은 수단 Ⅲ 용액입니다." },
+      { id: 24, unit: "1. 영양소", question: "지방에 수단 Ⅲ 용액을 떨어뜨렸을 때 나타나는 색깔 변화는 ( ? )이다.", options: ["선홍색", "청람색", "황적색", "보라색"], answer: "선홍색", explanation: "지방과 수단 Ⅲ 용액이 반응하면 선홍색으로 바뀝니다." },
+      { id: 25, unit: "1. 영양소", question: "수단 Ⅲ 반응을 거쳤을 때 선홍색으로 변하는 영양소는 ( ? )이다.", options: ["지방", "녹말", "포도당", "단백질"], answer: "지방", explanation: "수단 Ⅲ 반응 시 선홍색을 나타내는 영양소는 지방입니다." },
+
+      // --- 2. 소화 단원 (28문항) ---
+      { id: 26, unit: "2. 소화", question: "음식물 속 크기가 큰 영양소를 세포가 흡수할 수 있는 작은 분자로 분해하는 과정을 ( ? )라고 한다.", options: ["소화", "순환", "호흡", "배설"], answer: "소화", explanation: "크기가 큰 영양소는 세포막을 통과하지 못하므로 흡수 가능한 작은 분자로 분해하는 소화 과정이 필요합니다." },
+      { id: 27, unit: "2. 소화", question: "우리 몸에서 음식물을 소화하고 영양소를 흡수하는 일을 담당하는 기관계를 ( ? )라고 한다.", options: ["소화계", "순환계", "호흡계", "배설계"], answer: "소화계", explanation: "음식물의 이동과 분해, 영양소 흡수를 담당하는 기관들의 모임을 소화계라고 합니다." },
+      { id: 28, unit: "2. 소화", question: "음식물이 실제로 지나가는 통로를 ( ? )이라고 한다.", options: ["소화관", "소화샘", "혈관", "림프관"], answer: "소화관", explanation: "입, 식도, 위, 작은창자, 큰창자, 항문처럼 음식물이 직접 지나는 관 모양의 기관을 소화관이라고 합니다." },
+      { id: 29, unit: "2. 소화", question: "다음 중 음식물이 직접 지나가지 않는 소화계 기관은 ( ? )이다.", options: ["간", "위", "식도", "작은창자"], answer: "간", explanation: "간, 쓸개, 이자, 침샘은 음식물이 직접 지나지 않고 소화액을 만들거나 분비하여 소화를 돕는 기관입니다." },
+      { id: 30, unit: "2. 소화", question: "침샘, 간, 쓸개, 이자와 같이 소화관에 연결되어 소화를 돕는 기관들의 공통점은 ( ? )을 분비하거나 저장하는 것이다.", options: ["소화액", "호르몬", "혈액", "오줌"], answer: "소화액", explanation: "소화샘 및 관련 기관들은 소화관 내부로 소화액을 분비하여 영양소의 화학적 분해를 돕습니다." },
+      { id: 31, unit: "2. 소화", question: "입에서는 치아로 음식물을 씹어서 잘게 부수고, ( ? )에 의해 녹말이 최초로 분해된다.", options: ["침", "위액", "쓸개즙", "이자액"], answer: "침", explanation: "입안에서는 치아의 기계적 작용과 함께 침샘에서 분비되는 침에 의해 화학적 소화가 시작됩니다." },
+      { id: 32, unit: "2. 소화", question: "침 속에 들어 있으며 녹말을 엿당으로 분해하는 소화효소는 ( ? )이다.", options: ["아밀레이스", "펩신", "트립신", "라이페이스"], answer: "아밀레이스", explanation: "침 속에 포함된 아밀레이스는 커다란 녹말 분자를 더 작은 엿당 등으로 분해합니다." },
+      { id: 33, unit: "2. 소화", question: "입에서 침 속 아밀레이스에 의해 녹말이 분해되어 생성되는 당은 ( ? )이다.", options: ["엿당", "아미노산", "지방산", "모노글리세리드"], answer: "엿당", explanation: "아밀레이스의 작용을 받은 녹말은 1차적으로 엿당으로 분해됩니다." },
+      { id: 34, unit: "2. 소화", question: "밥을 입에서 오래 씹으면 녹말이 엿당으로 분해되면서 ( ? )이 나게 된다.", options: ["단맛", "신맛", "쓴맛", "짠맛"], answer: "단맛", explanation: "무맛에 가까운 녹말이 침에 의해 단맛을 내는 엿당으로 분해되기 때문입니다." },
+      { id: 35, unit: "2. 소화", question: "주머니 모양의 소화기관으로, 위액을 분비하여 단백질을 1차 분해하는 곳은 ( ? )이다.", options: ["위", "식도", "간", "큰창자"], answer: "위", explanation: "위는 주머니 모양으로 위액을 분비하여 단백질 소화를 시작합니다." },
+      { id: 36, unit: "2. 소화", question: "위액 속에 들어 있어 단백질을 분해하는 소화효소는 ( ? )이다.", options: ["펩신", "아밀레이스", "라이페이스", "트립신"], answer: "펩신", explanation: "위액에는 펩신이라는 소화효소가 들어 있어 단백질을 중간 단계 단백질로 분해합니다." },
+      { id: 37, unit: "2. 소화", question: "소화액인 쓸개즙을 생성하는 기관은 ( ? )이다.", options: ["간", "쓸개", "위", "이자"], answer: "간", explanation: "쓸개즙은 간에서 만들어진 후 쓸개에 저장되었다가 작은창자로 분비됩니다." },
+      { id: 38, unit: "2. 소화", question: "간에서 만들어진 쓸개즙을 저장했다가 작은창자로 분비하는 기관은 ( ? )이다.", options: ["쓸개", "간", "위", "식도"], answer: "쓸개", explanation: "쓸개는 간에서 만들어진 쓸개즙을 보관하다가 필요시 작은창자로 내보냅니다." },
+      { id: 39, unit: "2. 소화", question: "쓸개즙의 특징은 다른 소화액과 달리 ( ? )가 들어 있지 않다는 점이다.", options: ["소화효소", "물", "염류", "지방"], answer: "소화효소", explanation: "쓸개즙에는 소화효소가 없지만, 지방 덩어리를 작은 입자로 만들어 라이페이스의 작용을 돕습니다." },
+      { id: 40, unit: "2. 소화", question: "쓸개즙은 ( ? ) 덩어리를 작은 입자로 쪼개어 소화 효소의 작용을 돕는다.", options: ["지방", "탄수화물", "단백질", "무기염류"], answer: "지방", explanation: "쓸개즙은 지방을 화학적으로 직접 분해하지는 못하지만, 표면적을 넓혀 지방 소화를 돕습니다." },
+      { id: 41, unit: "2. 소화", question: "탄수화물, 단백질, 지방을 분해하는 효소가 모두 들어 있는 이자액을 분비하는 기관은 ( ? )이다.", options: ["이자", "간", "위", "침샘"], answer: "이자", explanation: "이자는 3대 영양소를 모두 분해할 수 있는 소화효소가 포함된 이자액을 작은창자로 분비합니다." },
+      { id: 42, unit: "2. 소화", question: "이자액에 들어 있으며, 단백질을 분해하는 효소는 ( ? )이다.", options: ["트립신", "펩신", "아밀레이스", "라이페이스"], answer: "트립신", explanation: "트립신은 이자액에 포함되어 단백질을 더 작게 분해하는 효소입니다." },
+      { id: 43, unit: "2. 소화", question: "이자액에 들어 있으며, 지방을 지방산과 모노글리세리드로 분해하는 효소는 ( ? )이다.", options: ["라이페이스", "아밀레이스", "펩신", "트립신"], answer: "라이페이스", explanation: "지방을 유일하게 최종 분해 산물로 바꾸는 소화효소는 라이페이스입니다." },
+      { id: 44, unit: "2. 소화", question: "탄수화물이 소화관을 거쳐 최종적으로 분해된 산물은 ( ? )이다.", options: ["포도당", "아미노산", "지방산", "글리세롤"], answer: "포도당", explanation: "녹말 등 탄수화물은 소화 과정을 거쳐 가장 작은 단위인 포도당으로 분해됩니다." },
+      { id: 45, unit: "2. 소화", question: "단백질이 소화 과정을 거쳐 최종적으로 분해되어 생성되는 물질은 ( ? )이다.", options: ["아미노산", "포도당", "지방산", "모노글리세리드"], answer: "아미노산", explanation: "단백질은 위와 이자, 작은창자의 소화효소에 의해 최종적으로 아미노산이 됩니다." },
+      { id: 46, unit: "2. 소화", question: "지방이 라이페이스에 의해 최종 분해되어 만들어지는 물질은 지방산과 ( ? )이다.", options: ["모노글리세리드", "포도당", "아미노산", "엿당"], answer: "모노글리세리드", explanation: "지방 1분자는 라이페이스에 의해 지방산 2분자와 모노글리세리드 1분자로 분해됩니다." },
+      { id: 47, unit: "2. 소화", question: "길고 꼬불꼬불한 관 모양으로 영양소의 최종 소화와 흡수가 주로 일어나는 기관은 ( ? )이다.", options: ["작은창자", "위", "큰창자", "식도"], answer: "작은창자", explanation: "작은창자는 이자액과 자체 소화효소를 통해 3대 영양소를 최종 분해하고 내벽을 통해 흡수합니다." },
+      { id: 48, unit: "2. 소화", question: "작은창자 안쪽 벽에 무수히 많이 돋아 있어 영양소와 접하는 표면적을 넓혀주는 구조는 ( ? )이다.", options: ["융털", "세뇨관", "토리", "판막"], answer: "융털", explanation: "작은창자 내벽의 융털 구조는 표면적을 극대화하여 영양소를 효율적으로 흡수할 수 있게 합니다." },
+      { id: 49, unit: "2. 소화", question: "소화관 중 소화액을 분비하지 않으며 주로 물을 흡수하는 기관은 ( ? )이다.", options: ["큰창자", "작은창자", "위", "입"], answer: "큰창자", explanation: "큰창자에서는 소화 효소가 분비되지 않고, 주로 물을 흡수한 뒤 남은 찌꺼기를 대변으로 만듭니다." },
+      { id: 50, unit: "2. 소화", question: "소화되지 않고 남아있는 음식물 찌꺼기를 몸 밖으로 배출하는 통로는 ( ? )이다.", options: ["항문", "요도", "식도", "쓸개"], answer: "항문", explanation: "큰창자를 거쳐 형성된 배설물(대변)는 항문을 통해 몸 밖으로 배출됩니다." },
+      { id: 51, unit: "2. 소화", question: "영양소 분해 반응을 촉진하는 생체 촉매 물질을 통틀어 ( ? )라고 한다.", options: ["소화효소", "호르몬", "항체", "혈장"], answer: "소화효소", explanation: "소화효소는 특정 영양소에 작용하여 고분자 영양소를 저분자로 분해하는 반응을 촉진합니다." },
+      { id: 52, unit: "2. 소화", question: "아밀레이스, 펩신, 라이페이스와 같은 소화효소가 가장 활발하게 작용하는 온도는 ( ? ) 근처이다.", options: ["37 ℃", "0 ℃", "60 ℃", "100 ℃"], answer: "37 ℃", explanation: "우리 몸의 소화효소는 사람의 체온 범위인 약 37 ℃에서 최적의 활성을 가집니다." },
+      { id: 53, unit: "2. 소화", question: "녹말 수용액에 침 희석액을 넣고 따뜻하게 유지한 후 베네딕트 용액을 떨어뜨려 가열하면 ( ? )으로 변한다.", options: ["황적색", "청람색", "보라색", "선홍색"], answer: "황적색", explanation: "침에 의해 녹말이 당(엿당 등)으로 분해되었으므로 베네딕트 반응 결과 황적색으로 변합니다." },
+
+      // --- 3. 순환계 단원 (25문항) ---
+      { id: 54, unit: "3.순환계", question: "우리 몸 구석구석으로 혈액을 순환시켜 생명활동에 필요한 물질을 운반하는 기관계를 ( ? )라고 한다.", options: ["순환계", "소화계", "호흡계", "배설계"], answer: "순환계", explanation: "순환계는 심장, 혈관, 혈액으로 구성되어 체내 물질 운반을 담당하는 기관계입니다." },
+      { id: 55, unit: "3.순환계", question: "순환계는 혈액, 혈관, 그리고 혈액을 온몸으로 보내는 펌프 역할을 하는 ( ? )로 이루어져 있다.", options: ["심장", "위", "폐", "콩팥"], answer: "심장", explanation: "심장은 주기적인 수축과 이완 운동을 통해 혈액을 온몸으로 순환시키는 펌프 기관입니다." },
+      { id: 56, unit: "3.순환계", question: "혈액의 액체 성분으로, 영양소, 이산화 탄소, 노폐물 등을 녹여 운반하는 것은 ( ? )이다.", options: ["혈장", "적혈구", "백혈구", "혈소판"], answer: "혈장", explanation: "혈장은 혈액의 약 55%를 차지하는 창백한 노란색의 액체 성분으로, 다양한 물질을 용해하여 운반합니다." },
+      { id: 57, unit: "3.순환계", question: "혈액 성분 중 가운데가 오목한 원반 모양으로, 산소 운반을 담당하는 혈구는 ( ? )이다.", options: ["적혈구", "백혈구", "혈소판", "혈장"], answer: "적혈구", explanation: "적혈구는 도넛처럼 가운데가 오목한 원반 모양이며, 표면적을 넓혀 산소를 효율적으로 운반합니다." },
+      { id: 58, unit: "3.순환계", question: "적혈구 속에 들어 있으며 붉은색을 띠고 산소와 잘 결합하여 산소를 운반하는 단백질은 ( ? )이다.", options: ["헤모글로빈", "아밀레이스", "인슐린", "펩신"], answer: "헤모글로빈", explanation: "헤모글로빈은 철을 포함하는 붉은색 단백질로, 산소 농도가 높은 곳에서 산소와 결합하고 낮은 곳에서 분리됩니다." },
+      { id: 59, unit: "3.순환계", question: "우리 몸에 침입한 병균을 잡아먹는 식균 작용을 하여 몸을 보호하는 혈구는 ( ? )이다.", options: ["백혈구", "적혈구", "혈소판", "혈장"], answer: "백혈구", explanation: "백혈구는 핵이 있으며 모양이 일정하지 않고, 식균 작용을 통해 체내 면역 기능을 수행합니다." },
+      { id: 60, unit: "3.순환계", question: "상처가 났을 때 혈액을 응고시켜 출혈을 멈추게 하는 혈구 성분은 ( ? )이다.", options: ["혈소판", "백혈구", "적혈구", "혈장"], answer: "혈소판", explanation: "혈소판은 세포 조각 형태로 핵이 없으며, 상처 부위에서 혈액 응고 작용을 돕습니다." },
+      { id: 61, unit: "3.순환계", question: "혈액의 구성 성분 중 적혈구, 백혈구, 혈소판을 통틀어 ( ? )라고 한다.", options: ["혈구", "혈장", "림프", "조직액"], answer: "혈구", explanation: "혈액은 액체 성분인 혈장과 세포 성분인 혈구(적혈구, 백혈구, 혈소판)로 구성됩니다." },
+      { id: 62, unit: "3.순환계", question: "심장에서 나가는 혈액이 흐르는 혈관으로, 높은 혈압을 견디기 위해 벽이 두껍고 탄력성이 큰 혈관은 ( ? )이다.", options: ["동맥", "정맥", "모세혈관", "림프관"], answer: "동맥", explanation: "동맥은 심장이 강하게 수축할 때 발생하는 높은 혈압을 견디도록 벽이 매우 두껍고 탄력성이 좋습니다." },
+      { id: 63, unit: "3.순환계", question: "심장으로 들어오는 혈액이 흐르는 혈관으로, 혈압이 매우 낮아 곳곳에 판막이 존재하는 혈관은 ( ? )이다.", options: ["정맥", "동맥", "모세혈관", "림프관"], answer: "정맥", explanation: "정맥은 혈압이 약하므로 혈액이 거꾸로 흐르는 것을 방지하기 위해 내부 곳곳에 판막이 있습니다." },
+      { id: 64, unit: "3.순환계", question: "온몸의 조직세포 사이에 그물처럼 퍼져 있으며 한 층의 세포로 이루어져 물질 교환이 일어나는 혈관은 ( ? )이다.", options: ["모세혈관", "동맥", "정맥", "대동맥"], answer: "모세혈관", explanation: "모세혈관은 매우 얇은 한 층의 세포 벽으로 되어 있어 조직세포와 산소, 영양소, 이산화 탄소, 노폐물을 원활하게 교환합니다." },
+      { id: 65, unit: "3.순환계", question: "혈관 중 전체 단면적이 가장 넓어 혈액이 흐르는 속도가 가장 느린 혈관은 ( ? )이다.", options: ["모세혈관", "대동맥", "대정맥", "폐동맥"], answer: "모세혈관", explanation: "모세혈관은 총 단면적이 매우 넓어 혈류 속도가 가장 느리므로 조직세포와의 물질 교환에 매우 유리합니다." },
+      { id: 66, unit: "3.순환계", question: "심장의 구조 중 온몸을 돌고 온 산소가 부족한 혈액이 대정맥을 통해 처음 들어오는 곳은 ( ? )이다.", options: ["우심방", "우심실", "좌심방", "좌심실"], answer: "우심방", explanation: "우심방은 대정맥과 연결되어 정맥혈을 받아들이는 심장의 방입니다." },
+      { id: 67, unit: "3.순환계", question: "심장의 구조 중 폐동맥과 연결되어 수축할 때 혈액을 폐(허파)로 보내는 곳은 ( ? )이다.", options: ["우심실", "우심방", "좌심방", "좌심실"], answer: "우심실", explanation: "우심실은 우심방으로부터 받은 혈액을 폐동맥을 통해 폐로 보냅니다." },
+      { id: 68, unit: "3.순환계", question: "심장의 구조 중 폐를 거쳐 산소가 풍부해진 혈액이 폐정맥을 통해 들어오는 곳은 ( ? )이다.", options: ["좌심방", "좌심실", "우심방", "우심실"], answer: "좌심방", explanation: "좌심방은 폐정맥과 연결되어 산소가 풍부한 동맥혈을 받아들입니다." },
+      { id: 69, unit: "3.순환계", question: "심장의 구조 중 대동맥과 연결되어 있으며 온몸으로 혈액을 내보내기 위해 근육 벽이 가장 두꺼운 곳은 ( ? )이다.", options: ["좌심실", "좌심방", "우심실", "우심방"], answer: "좌심실", explanation: "좌심실은 높은 압력으로 온몸에 혈액을 뿜어내야 하므로 심장 내에서 가장 두꺼운 근육으로 둘러싸여 있습니다." },
+      { id: 70, unit: "3.순환계", question: "심장 내부(심방과 심실 사이, 심실과 동맥 사이)에 위치하여 혈액의 역류를 막아주는 구조는 ( ? )이다.", options: ["판막", "융털", "세뇨관", "토리"], answer: "판막", explanation: "판막은 혈액이 심방에서 심실로, 심실에서 동맥으로 한 방향으로만 흐르도록 해줍니다." },
+      { id: 71, unit: "3.순환계", question: "혈액이 좌심실에서 출발하여 대동맥, 온몸의 모세혈관, 대정맥을 거쳐 우심방으로 돌아오는 순환 경로는 ( ? )이다.", options: ["온몸순환", "허파순환", "관상순환", "림프순환"], answer: "온몸순환", explanation: "온몸순환(체순환)은 온몸의 조직세포에 산소와 영양소를 제공하고 이산화 탄소와 노폐물을 수거하는 경로입니다." },
+      { id: 72, unit: "3.순환계", question: "혈액이 우심실에서 출발하여 폐동맥, 폐의 모세혈관, 폐정맥을 거쳐 좌심방으로 돌아오는 순환 경로는 ( ? )이다.", options: ["허파순환", "온몸순환", "체순환", "문맥순환"], answer: "허파순환", explanation: "허파순환(폐순환)은 폐포 주변 모세혈관에서 기체 교환을 진행하여 혈액에 산소를 충전하는 경로입니다." },
+      { id: 73, unit: "3.순환계", question: "온몸순환 과정에서 모세혈관 속 혈액은 조직세포에 산소와 영양소를 전달하고 ( ? )와 노폐물을 받는다.", options: ["이산화 탄소", "포도당", "아미노산", "지방산"], answer: "이산화 탄소", explanation: "조직세포는 세포 호흡 결과 부산물로 생성된 이산화 탄소와 노폐물을 혈액으로 내보냅니다." },
+      { id: 74, unit: "3.순환계", question: "허파순환 과정에서 폐의 모세혈관을 지나는 동안 혈액은 이산화 탄소를 버리고 ( ? )를 얻는다.", options: ["산소", "영양소", "요소", "단백질"], answer: "산소", explanation: "폐포 속 공기로부터 모세혈관 안으로 산소가 확산되어 혈액 내 산소가 풍부해집니다." },
+      { id: 75, unit: "3.순환계", question: "산소가 풍부하게 들어 있어 밝은 선홍색을 띠는 혈액을 ( ? )이라고 한다.", options: ["동맥혈", "정맥혈", "림프액", "혈청"], answer: "동맥혈", explanation: "산소와 결합한 헤모글로빈이 많아 선홍색을 띠는 혈액을 동맥혈이라고 합니다." },
+      { id: 76, unit: "3.순환계", question: "산소가 적고 이산화 탄소가 많아 암붉은색을 띠는 혈액을 ( ? )이라고 한다.", options: ["정맥혈", "동맥혈", "혈장", "조직액"], answer: "정맥혈", explanation: "조직세포에 산소를 전달한 후 산소 함량이 줄어든 어두운 붉은색 혈액을 정맥혈이라고 합니다." },
+      { id: 77, unit: "3.순환계", question: "폐정맥, 좌심방, 좌심실, 대동맥을 흐르는 혈액은 산소가 풍부한 ( ? )이다.", options: ["동맥혈", "정맥혈", "골수액", "혈장"], answer: "동맥혈", explanation: "폐에서 산소를 막 받아서 온 폐정맥부터 좌심방, 좌심실, 대동맥까지는 산소가 풍부한 동맥혈이 흐릅니다." },
+      { id: 78, unit: "3.순환계", question: "대정맥, 우심방, 우심실, 폐동맥을 흐르는 혈액은 산소가 부족한 ( ? )이다.", options: ["정맥혈", "동맥혈", "림프액", "조직액"], answer: "정맥혈", explanation: "온몸을 거쳐 들어온 대정맥, 우심방, 우심실 및 폐로 가는 폐동맥에는 산소가 소비되어 부족해진 정맥혈이 흐릅니다." },
+
+      // --- 4. 호흡계 단원 (26문항) ---
+      { id: 79, unit: "4.호흡계", question: "우리 몸에서 공기 중의 ( ? )를 받아들이고, 몸 안의 이산화 탄소를 몸 밖으로 내보내는 작용을 호흡이라고 한다.", options: ["산소", "질소", "수소", "헬륨"], answer: "산소", explanation: "호흡은 공기 중의 산소를 받아들이고 체내에서 생성된 이산화 탄소를 몸 밖으로 배출하는 생명 활동입니다." },
+      { id: 80, unit: "4.호흡계", question: "체내 세포 호흡 결과 발생한 ( ? )를 몸 밖으로 내보내고 산소를 받아들이는 작용을 호흡이라고 한다.", options: ["이산화 탄소", "영양소", "포도당", "아미노산"], answer: "이산화 탄소", explanation: "호흡을 통해 체내에서 발생한 노폐물 기체인 이산화 탄소를 몸 밖으로 배출합니다." },
+      { id: 81, unit: "4.호흡계", question: "우리 몸에서 산소를 받아들이고 이산화 탄소를 배출하는 호흡을 담당하는 기관계를 ( ? )라고 한다.", options: ["호흡계", "소화계", "순환계", "배설계"], answer: "호흡계", explanation: "코, 숨관, 숨관가지, 폐, 가로막 등으로 구성되어 호흡을 담당하는 기관계를 호흡계라고 합니다." },
+      { id: 82, unit: "4.호흡계", question: "공기가 몸속으로 들어오는 첫 관문으로, 공기 속의 먼지와 세균을 걸러주는 기관은 ( ? )이다.", options: ["코", "식도", "위", "쓸개"], answer: "코", explanation: "코 안쪽의 코털과 점막은 들이마시는 공기 속의 먼지와 세균을 걸러내고 공기를 따뜻하고 습하게 만듭니다." },
+      { id: 83, unit: "4.호흡계", question: "코를 통과한 공기가 폐 쪽으로 이동하는 길고 곧은 통로를 ( ? )라고 한다.", options: ["숨관", "식도", "혈관", "세뇨관"], answer: "숨관", explanation: "숨관은 코와 숨관가지를 연결하며 공기가 이동하는 주된 통로 역할을 합니다." },
+      { id: 84, unit: "4.호흡계", question: "숨관이 아래에서 좌우 두 갈래로 갈라져 각각의 폐와 연결되는 관 구조는 ( ? )이다.", options: ["숨관가지", "오줌관", "림프관", "모세혈관"], answer: "숨관가지", explanation: "숨관가지는 숨관에서 갈라져 나와 좌우 폐 속으로 세분화되어 들어가는 관입니다." },
+      { id: 85, unit: "4.호흡계", question: "호흡계에서 산소와 이산화 탄소의 기체 교환이 실제로 일어나는 중심 기관은 ( ? )이다.", options: ["폐", "심장", "간", "콩팥"], answer: "폐", explanation: "폐는 가슴속 흉강에 좌우 한 쌍이 존재하며, 허파꽈리와 모세혈관을 통해 기체 교환을 수행합니다." },
+      { id: 86, unit: "4.호흡계", question: "폐는 ( ? )이 없기 때문에 스스로 수축하거나 이완하여 운동할 수 없다.", options: ["근육", "혈관", "신경", "뼈"], answer: "근육", explanation: "폐에는 근육이 없으므로 갈비뼈와 가로막의 상하 운동에 의해 흉강 부피가 변하면서 호흡운동이 일어납니다." },
+      { id: 87, unit: "4.호흡계", question: "숨관가지 끝에 달린 무수히 많은 작은 공기 주머니 구조를 ( ? )라고 한다.", options: ["허파꽈리", "보먼주머니", "토리", "융털"], answer: "허파꽈리", explanation: "폐는 무수히 많은 허파꽈리로 이루어져 있어 공기와 접하는 표면적을 매우 넓혀줍니다." },
+      { id: 88, unit: "4.호흡계", question: "폐가 무수히 많은 허파꽈리로 이루어져 있어 공기와 접하는 ( ? )이 넓어져 기체 교환이 효율적으로 일어난다.", options: ["표면적", "부피", "질량", "밀도"], answer: "표면적", explanation: "허파꽈리는 단위 부피당 표면적을 극대화하여 산소와 이산화 탄소의 교환을 촉진합니다." },
+      { id: 89, unit: "4.호흡계", question: "허파꽈리의 표면은 무수히 많은 ( ? )으로 둘러싸여 있어 공기와 혈액 사이의 기체 이동이 쉽게 일어난다.", options: ["모세혈관", "동맥", "정맥", "암죽관"], answer: "모세혈관", explanation: "허파꽈리를 둘러싼 모세혈관을 통해 허파꽈리 속 산소와 혈액 속 이산화 탄소가 교환됩니다." },
+      { id: 90, unit: "4.호흡계", question: "가슴과 복부 사이를 나누는 근육 성분의 막으로, 위아래로 움직여 호흡운동을 일으키는 구조는 ( ? )이다.", options: ["가로막", "판막", "세포막", "핵막"], answer: "가로막", explanation: "가로막은 가슴(흉강)과 배(복강)를 구분하는 근육 막으로 상하 이동을 통해 흉강 부피를 변화시킵니다." },
+      { id: 91, unit: "4.호흡계", question: "숨을 들이마시는 들숨이 일어날 때 갈비뼈는 ( ? )하고 가로막은 아래로 내려간다.", options: ["올라가", "내려가", "수축하", "이완하"], answer: "올라가", explanation: "들숨 시 갈비뼈가 올라가고 가로막이 내려가면 흉강의 부피가 커집니다." },
+      { id: 92, unit: "4.호흡계", question: "숨을 들이마시는 들숨이 일어날 때 가로막은 ( ? )로 내려가 흉강의 부피를 늘린다.", options: ["아래", "위", "좌우", "앞"], answer: "아래", explanation: "들숨 시 가로막이 아래로 내려가면서 가슴 내부(흉강) 공간이 넓어집니다." },
+      { id: 93, unit: "4.호흡계", question: "들숨 때 흉강의 부피가 커지면 흉강 내부 압력이 대기압보다 ( ? ) 외부 공기가 폐로 들어온다.", options: ["낮아져", "높아져", "같아져", "일정해져"], answer: "낮아져", explanation: "흉강 부피가 커지면 내부 압력이 낮아지므로 기압 차에 의해 밖의 공기가 폐 내부로 밀려 들어옵니다." },
+      { id: 94, unit: "4.호흡계", question: "숨을 내쉬는 날숨이 일어날 때 갈비뼈는 ( ? )하고 가로막은 위로 올라간다.", options: ["내려가", "올라가", "팽창하", "확장하"], answer: "내려가", explanation: "날숨 시 갈비뼈가 내려가고 가로막이 위로 올라가면 흉강 부피가 작아집니다." },
+      { id: 95, unit: "4.호흡계", question: "날숨 때 흉강의 부피가 작아지면 흉강 내부 압력이 대기압보다 ( ? ) 폐 안의 공기가 몸 밖으로 나간다.", options: ["높아져", "낮아져", "같아져", "차단되어"], answer: "높아져", explanation: "흉강 부피가 줄어들면 내부 압력이 대기압보다 높아져 폐 속 공기가 몸 밖으로 밀려나갑니다." },
+      { id: 96, unit: "4.호흡계", question: "플라스틱 컵과 Y자관을 이용한 호흡운동 모형에서 Y자관의 갈라진 부분은 우리 몸의 ( ? )에 해당한다.", options: ["숨관가지", "허파꽈리", "가로막", "흉강"], answer: "숨관가지", explanation: "Y자관의 일자 부분은 숨관, 아래 두 갈래로 갈라진 부분은 숨관가지에 대응됩니다." },
+      { id: 97, unit: "4.호흡계", question: "호흡운동 모형에서 Y자관 끝에 달아놓은 작은 고무풍선은 우리 몸의 ( ? )에 해당한다.", options: ["폐", "가로막", "갈비뼈", "코"], answer: "폐", explanation: "Y자관 끝의 작은 고무풍선은 부풀거나 줄어들며 폐 역할을 대신합니다." },
+      { id: 98, unit: "4.호흡계", question: "호흡운동 모형 밑부분의 큰 고무막을 아래로 잡아당기는 동작은 ( ? )이 일어나는 원리를 보여준다.", options: ["들숨", "날숨", "세포호흡", "소화"], answer: "들숨", explanation: "고무막을 아래로 잡아당기면 컵 내부 부피가 늘고 압력이 낮아져 풍선에 공기가 들어오는 들숨 원리를 나타냅니다." },
+      { id: 99, unit: "4.호흡계", question: "플라스틱 컵으로 만든 호흡운동 모형은 단단하여 ( ? )의 움직임을 표현할 수 없다는 한계가 있다.", options: ["갈비뼈", "가로막", "숨관", "폐"], answer: "갈비뼈", explanation: "플라스틱 컵 변형이 불가능하므로 위아래로 움직이는 갈비뼈의 운동을 모형에 직접 반영하지 못합니다." },
+      { id: 100, unit: "4.호흡계", question: "허파꽈리와 모세혈관 사이의 기체 교환에서 산소는 허파꽈리에서 ( ? )으로 이동한다.", options: ["모세혈관", "조직세포", "숨관", "콩팥"], answer: "모세혈관", explanation: "허파꽈리 내부 산소 농도가 모세혈관보다 높으므로 산소는 허파꽈리에서 모세혈관으로 이동합니다." },
+      { id: 101, unit: "4.호흡계", question: "허파꽈리와 모세혈관 사이의 기체 교환에서 이산화 탄소는 모세혈관에서 ( ? )로 이동한다.", options: ["허파꽈리", "조직세포", "동맥", "심장"], answer: "허파꽈리", explanation: "혈액 속 이산화 탄소 농도가 허파꽈리보다 높으므로 이산화 탄소는 허파꽈리로 넘어가 배출됩니다." },
+      { id: 102, unit: "4.호흡계", question: "호흡계에서의 기체 교환은 에너지를 소비하지 않고 기체의 농도 차이에 의한 ( ? ) 현상으로 일어난다.", options: ["확산", "여과", "삼투", "능동수송"], answer: "확산", explanation: "산소와 이산화 탄소는 농도가 높은 쪽에서 낮은 쪽으로 스스로 이동하는 확산 원리에 의해 교환됩니다." },
+      { id: 103, unit: "4.호흡계", question: "우리가 들이마시는 들숨은 내쉬는 날숨에 비해 ( ? )의 비율이 더 높다.", options: ["산소", "이산화 탄소", "수증기", "암모니아"], answer: "산소", explanation: "들숨은 대기 중 산소를 많이 포함하고 있으며, 날숨은 체내 기체 교환 후 이산화 탄소 비율이 늘어난 기체입니다." },
+      { id: 104, unit: "4.호흡계", question: "가로막이 의지와 상관없이 비정상적으로 자극을 받아 갑자기 수축할 때 발생하는 현상은 ( ? )이다.", options: ["딸꾹질", "기침", "재채기", "하품"], answer: "딸꾹질", explanation: "딸꾹질은 가로막의 비정상적인 수축으로 인해 소리가 나면서 일어나는 일시적인 호흡 현상입니다." },
+
+      // --- 5. 배설계 단원 (30문항) ---
+      { id: 105, unit: "5.배설계", question: "세포에서 영양소를 분해하여 에너지를 얻는 과정에서 발생한 노폐물을 몸 밖으로 내보내는 작용을 ( ? )이라고 한다.", options: ["배설", "소화", "순환", "호흡"], answer: "배설", explanation: "배설은 세포호흡 결과 생성된 노폐물을 몸 밖으로 배출하여 체내 환경을 일정하게 유지하는 작용입니다." },
+      { id: 106, unit: "5.배설계", question: "우리 몸에서 노폐물을 걸러 오줌을 만들고 배출하는 데 관여하는 기관들을 통틀어 ( ? )라고 한다.", options: ["배설계", "소화계", "순환계", "호흡계"], answer: "배설계", explanation: "배설계는 콩팥, 오줌관, 방광, 요도 등의 기관으로 구성되어 노폐물 배설을 담당합니다." },
+      { id: 107, unit: "5.배설계", question: "배설계를 구성하는 기관 중 강낭콩 모양으로 허리의 등 쪽에 좌우 1개씩 위치하며 혈액 속 노폐물을 걸러 오줌을 만드는 기관은 ( ? )이다.", options: ["콩팥", "방광", "오줌관", "요도"], answer: "콩팥", explanation: "콩팥(신장)은 강낭콩 모양의 기관으로, 혈액을 정화하고 오줌을 생성하는 배설계의 핵심 기관입니다." },
+      { id: 108, unit: "5.배설계", question: "콩팥에서 만들어진 오줌을 방광까지 운반해 주는 긴 관은 ( ? )이다.", options: ["오줌관", "요도", "세뇨관", "숨관"], answer: "오줌관", explanation: "오줌관은 콩팥과 방광을 연결하여 생성된 오줌을 방광으로 이동시키는 관입니다." },
+      { id: 109, unit: "5.배설계", question: "콩팥에서 전달된 오줌을 임시로 모아 두는 주머니 모양의 기관은 ( ? )이다.", options: ["방광", "콩팥", "요도", "보먼주머니"], answer: "방광", explanation: "방광은 근육으로 이루어진 주머니 모양의 기관으로 오줌을 일정량 저장하는 역할을 합니다." },
+      { id: 110, unit: "5.배설계", question: "방광에 모인 오줌이 몸 밖으로 배출되는 마지막 통로는 ( ? )이다.", options: ["요도", "오줌관", "세뇨관", "콩팥동맥"], answer: "요도", explanation: "요도는 방광에 저장되어 있던 오줌이 몸 밖으로 나가는 길입니다." },
+      { id: 111, unit: "5.배설계", question: "콩팥에서 오줌을 만드는 기본 단위로, 토리, 보먼주머니, 세뇨관으로 구성된 구조를 ( ? )라고 한다.", options: ["콩팥단위", "허파꽈리", "융털", "심장방"], answer: "콩팥단위", explanation: "콩팥단위(네프론)는 콩팥 1개당 약 100만 개씩 존재하는 오줌 생성의 기본 단위입니다." },
+      { id: 112, unit: "5.배설계", question: "콩팥단위 중 콩팥동맥에서 갈라진 모세혈관이 실 뭉치처럼 꼬여 있는 구조는 ( ? )이다.", options: ["토리", "보먼주머니", "세뇨관", "오줌관"], answer: "토리", explanation: "토리는 높은 혈압을 유지하는 모세혈관 뭉치로, 물질의 여과가 일어나는 장소입니다." },
+      { id: 113, unit: "5.배설계", question: "토리의 모세혈관 뭉치를 둘러싸고 있는 컵이나 주머니 모양의 구조는 ( ? )이다.", options: ["보먼주머니", "토리", "세뇨관", "방광"], answer: "보먼주머니", explanation: "보먼주머니는 토리에서 여과된 여과액을 받아 세뇨관으로 보내는 주머니 구조입니다." },
+      { id: 114, unit: "5.배설계", question: "보먼주머니와 연결되어 있으며, 주변이 모세혈관으로 둘러싸여 있는 가는 관을 ( ? )이라고 한다.", options: ["세뇨관", "오줌관", "요도", "콩팥정맥"], answer: "세뇨관", explanation: "세뇨관은 보먼주머니와 연결되어 오줌관으로 이어지며, 재흡수와 분비가 일어납니다." },
+      { id: 115, unit: "5.배설계", question: "오줌 생성의 첫 번째 단계로, 토리의 높은 혈압에 의해 분자 크기가 작은 물질이 보먼주머니로 빠져나가는 현상은 ( ? )이다.", options: ["여과", "재흡수", "분비", "소화"], answer: "여과", explanation: "여과는 단백질이나 혈구처럼 크기가 큰 물질을 제외하고, 크기가 작은 물질들이 보먼주머니로 이동하는 과정입니다." },
+      { id: 116, unit: "5.배설계", question: "토리에서 보먼주머니로 여과될 때, 크기가 커서 여과되지 못하고 혈액에 남는 물질은 ( ? )이다.", options: ["단백질", "포도당", "아미노산", "요소"], answer: "단백질", explanation: "단백질과 혈구는 분자의 크기가 크기 때문에 토리의 모세혈관 벽을 통과해 여과되지 않습니다." },
+      { id: 117, unit: "5.배설계", question: "여과액이 세뇨관을 지나가는 동안 우리 몸에 필요한 물질이 세뇨관에서 모세혈관으로 다시 이동하는 과정을 ( ? )라고 한다.", options: ["재흡수", "여과", "분비", "배출"], answer: "재흡수", explanation: "재흡수는 여과된 물질 중 유용한 영양소와 수분을 몸속으로 다시 회수하는 과정입니다." },
+      { id: 118, unit: "5.배설계", question: "건강한 사람의 경우, 세뇨관에서 모세혈관으로 100% 재흡수되는 영양소는 ( ? )이다.", options: ["포도당", "요소", "무기염류", "물"], answer: "포도당", explanation: "포도당과 아미노산은 에너지원으로 쓰이는 중요한 영양소이므로 정상적인 생체 상태에서는 100% 재흡수됩니다." },
+      { id: 119, unit: "5.배설계", question: "여과 과정에서 미처 여과되지 못하고 혈액에 남아 있던 노폐물이 모세혈관에서 세뇨관으로 이동하는 과정을 ( ? )라고 한다.", options: ["분비", "여과", "재흡수", "동화"], answer: "분비", explanation: "분비는 혈액 속 남아 있는 노폐물을 세뇨관으로 직접 이동시켜 제거하는 과정입니다." },
+      { id: 120, unit: "5.배설계", question: "탄수화물과 지방이 세포에서 분해될 때 공통으로 생성되는 노폐물은 물과 ( ? )이다.", options: ["이산화 탄소", "암모니아", "요소", "단백질"], answer: "이산화 탄소", explanation: "탄수화물과 지방은 탄소, 수소, 산소로 이루어져 있어 세포호흡 결과 물과 이산화 탄소가 생성됩니다." },
+      { id: 121, unit: "5.배설계", question: "단백질이 세포에서 분해될 때 생성되는 질소 함유 노폐물로, 독성이 강한 물질은 ( ? )이다.", options: ["암모니아", "이산화 탄소", "포도당", "글리코젠"], answer: "암모니아", explanation: "단백질에는 질소 성분이 포함되어 있어 분해 시 독성이 강한 암모니아가 생성됩니다." },
+      { id: 122, unit: "5.배설계", question: "단백질 분해 결과 생긴 독성이 강한 암모니아는 ( ? )에서 독성이 적은 요소로 전환된다.", options: ["간", "콩팥", "위", "소장"], answer: "간", explanation: "간은 해독 작용을 하여 유독한 암모니아를 독성이 적은 요소로 바꿉니다." },
+      { id: 123, unit: "5.배설계", question: "암모니아가 간에서 전환되어 형성되며, 콩팥을 통해 오줌으로 배출되는 대표적인 질소 노폐물은 ( ? )이다.", options: ["요소", "지방산", "아미노산", "녹말"], answer: "요소", explanation: "요소는 독성이 적어 오줌에 녹아 안전하게 몸 밖으로 배설될 수 있습니다." },
+      { id: 124, unit: "5.배설계", question: "다음 중 오줌이 생성되는 과정에서 일어나는 순서가 올바르게 나열된 것은 ( ? )이다.", options: ["여과 → 재흡수 → 분비", "재흡수 → 여과 → 분비", "분비 → 여과 → 재흡수", "여과 → 분비 → 재흡수"], answer: "여과 → 재흡수 → 분비", explanation: "오줌 생성은 토리에서 보먼주머니로의 '여과', 세뇨관에서 모세혈관으로의 '재흡수', 모세혈관에서 세뇨관으로의 '분비' 순으로 진행됩니다." },
+      { id: 125, unit: "5.배설계", question: "콩팥으로 들어가는 혈액이 흐르는 혈관으로, 콩팥정맥에 비해 노폐물(요소)의 농도가 높은 혈관은 ( ? )이다.", options: ["콩팥동맥", "콩팥정맥", "대정맥", "모세혈관"], answer: "콩팥동맥", explanation: "콩팥동맥은 걸러지지 않은 노폐물이 많이 포함된 혈액을 콩팥으로 전달합니다." },
+      { id: 126, unit: "5.배설계", question: "콩팥에서 노폐물이 걸러진 후 신선해진 혈액이 심장 방향으로 나가는 혈관은 ( ? )이다.", options: ["콩팥정맥", "콩팥동맥", "대동맥", "오줌관"], answer: "콩팥정맥", explanation: "콩팥정맥은 콩팥단위를 지나 노폐물이 거의 제거된 혈액이 흐르는 혈관입니다." },
+      { id: 127, unit: "5.배설계", question: "건강한 사람의 오줌에서 포도당이 검출되지 않는 이유는 세뇨관에서 포도당이 모세혈관으로 모두 ( ? )되기 때문이다.", options: ["재흡수", "여과", "분비", "소화"], answer: "재흡수", explanation: "정상적인 신장 기능을 가진 사람은 여과된 포도당이 세뇨관을 지나는 동안 전량 모세혈관으로 재흡수됩니다." },
+      { id: 128, unit: "5.배설계", question: "만약 건강 검진 시 오줌에서 단백질이 검출되었다면 배설계 기관 중 ( ? )에 이상이 생긴 것으로 추론할 수 있다.", options: ["토리", "방광", "오줌관", "요도"], answer: "토리", explanation: "단백질은 분자가 커서 토리에서 여과되지 않아야 하므로, 오줌에서 단백질이 발견되면 토리의 모세혈관 벽(사구체) 손상을 의심할 수 있습니다." },
+      { id: 129, unit: "5.배설계", question: "세포호흡 결과 생성된 이산화 탄소는 배설계가 아닌 ( ? )을 통해 몸 밖으로 배출된다.", options: ["호흡계", "소화계", "순환계", "신경계"], answer: "호흡계", explanation: "기체 노폐물인 이산화 탄소는 혈장에 녹아 허파로 이동한 후 호흡계(날숨)를 통해 배출됩니다." },
+      { id: 130, unit: "5.배설계", question: "세포호흡 결과 생성된 노폐물 중 물은 주로 호흡계의 날숨과 배설계의 ( ? )을 통해 몸 밖으로 나간다.", options: ["오줌", "대변", "소화액", "혈액"], answer: "오줌", explanation: "물은 수증기 형태로 날숨에 포함되어 나가거나 콩팥에서 걸러져 오줌 형태로 배출됩니다." },
+      { id: 131, unit: "5.배설계", question: "오줌이 최종 형성되어 배출되는 물질 이동 경로로 알맞은 것은 토리 → 보먼주머니 → 세뇨관 → 콩팥깔때기 → ( ? ) → 방광 → 요도 이다.", options: ["오줌관", "콩팥동맥", "콩팥정맥", "모세혈관"], answer: "오줌관", explanation: "오줌은 세뇨관을 거쳐 수집된 뒤 오줌관을 타고 방광으로 모이게 됩니다." },
+      { id: 132, unit: "5.배설계", question: "콩팥의 겉질과 속질에 주로 분포하며, 토리와 보먼주머니가 결합한 공 모양의 구조체를 포함하는 오줌 생성 최소 기능 단위를 ( ? )라고 한다.", options: ["콩팥단위", "세뇨관", "방광", "혈구"], answer: "콩팥단위", explanation: "토리, 보먼주머니, 세뇨관이 모여 만들어진 콩팥단위는 오줌을 만드는 핵심 구조 단위입니다." },
+      { id: 133, unit: "5.배설계", question: "세뇨관을 둘러싸고 있는 모세혈관은 세뇨관과의 사이에서 물질의 ( ? )와 분비 작용을 일으킨다.", options: ["재흡수", "소화", "동화", "여과"], answer: "재흡수", explanation: "세뇨관을 감싸는 모세혈관망은 세뇨관 속 유용한 물질을 재흡수하고 잔여 노폐물을 분비받습니다." },
+      { id: 134, unit: "5.배설계", question: "세포가 영양소와 산소를 이용하여 생명활동에 필요한 에너지를 얻는 과정을 ( ? )라고 한다.", options: ["세포호흡", "소화작용", "광합성", "여과작용"], answer: "세포호흡", explanation: "세포호흡은 영양소(포도당 등)와 산소를 반응시켜 에너지를 얻고 물, 이산화 탄소, 암모니아 등의 노폐물을 생성하는 과정입니다." },
+
+      // --- 6. 소화·순환·호흡·배설의 관계 단원 (23문항) ---
+      { id: 135, unit: "6. 소화·순환·호흡·배설의 관계", question: "세포에서 영양소와 산소를 반응시켜 생명활동에 필요한 에너지를 얻는 과정을 ( ? )이라고 한다.", options: ["세포 호흡", "광합성", "소화", "배설"], answer: "세포 호흡", explanation: "세포 호흡은 조직세포에서 영양소와 산소를 이용하여 생명활동에 필요한 에너지를 생성하는 과정입니다." },
+      { id: 136, unit: "6. 소화·순환·호흡·배설의 관계", question: "세포 호흡이 일어나는 데 필요한 반응물은 소화계에서 흡수한 영양소와 호흡계에서 흡수한 ( ? )이다.", options: ["산소", "이산화 탄소", "암모니아", "요소"], answer: "산소", explanation: "세포 호흡에는 소화계를 통해 흡수된 영양소와 호흡계를 통해 흡수된 산소가 지속적으로 공급되어야 합니다." },
+      { id: 137, unit: "6. 소화·순환·호흡·배설의 관계", question: "세포 호흡 결과 생성되어 호흡계를 통해 몸 밖으로 배출되는 대표적인 기체 노폐물은 ( ? )이다.", options: ["이산화 탄소", "산소", "질소", "수소"], answer: "이산화 탄소", explanation: "세포 호흡의 기체 노폐물로 이산화 탄소가 발생하며, 이는 혈액에 의해 폐로 운반되어 날숨으로 배출됩니다." },
+      { id: 138, unit: "6. 소화·순환·호흡·배설의 관계", question: "단백질이 세포 호흡에 사용될 때 생성되는 독성이 강한 질소 노폐물은 ( ? )이다.", options: ["암모니아", "요소", "포도당", "아미노산"], answer: "암모니아", explanation: "단백질은 질소를 포함하고 있어 세포 호흡 결과 독성이 강한 암모니아가 생성됩니다." },
+      { id: 139, unit: "6. 소화·순환·호흡·배설의 관계", question: "단백질 분해 결과 생긴 독성이 강한 암모니아는 ( ? )에서 독성이 적은 요소로 전환된다.", options: ["간", "콩팥", "위", "작은창자"], answer: "간", explanation: "암모니아는 간으로 운반되어 독성이 적은 요소로 합성된 후 다시 혈액을 거쳐 콩팥으로 이동합니다." },
+      { id: 140, unit: "6. 소화·순환·호흡·배설의 관계", question: "음식물 속의 크기가 큰 영양소를 세포가 흡수할 수 있는 작은 분자로 분해하고 흡수하는 기관계는 ( ? )이다.", options: ["소화계", "호흡계", "순환계", "배설계"], answer: "소화계", explanation: "소화계는 3대 영양소를 최종 분해 산물로 소화시킨 후 작은창자의 융털을 통해 흡수합니다." },
+      { id: 141, unit: "6. 소화·순환·호흡·배설의 관계", question: "공기 중의 산소를 받아들이고, 세포 호흡 결과 발생한 이산화 탄소를 몸 밖으로 내보내는 기관계는 ( ? )이다.", options: ["호흡계", "소화계", "순환계", "배설계"], answer: "호흡계", explanation: "호흡계는 허파꽈리와 모세혈관 사이의 기체 교환을 통해 산소를 얻고 이산화 탄소를 배출합니다." },
+      { id: 142, unit: "6. 소화·순환·호흡·배설의 관계", question: "소화계에서 흡수한 영양소와 호흡계에서 흡수한 산소를 온몸의 조직세포로 운반하는 기관계는 ( ? )이다.", options: ["순환계", "소화계", "호흡계", "배설계"], answer: "순환계", explanation: "순환계는 심장박동과 혈관을 통해 물질을 온몸으로 유기적으로 운반하는 역할을 합니다." },
+      { id: 143, unit: "6. 소화·순환·호흡·배설의 관계", question: "세포 호흡 결과 생성된 요소, 물 등의 노폐물을 혈액에서 걸러내 오줌 형태로 배출하는 기관계는 ( ? )이다.", options: ["배설계", "순환계", "호흡계", "소화계"], answer: "배설계", explanation: "배설계는 콩팥에서 혈액 속의 노폐물을 여과·재흡수·분비 과정을 거쳐 오줌으로 만듭니다." },
+      { id: 144, unit: "6. 소화·순환·호흡·배설의 관계", question: "탄수화물과 지방이 세포 호흡에 사용될 때 생성되는 노폐물은 물과 ( ? )이다.", options: ["이산화 탄소", "암모니아", "요소", "아미노산"], answer: "이산화 탄소", explanation: "탄수화물과 지방은 탄소, 수소, 산소로만 구성되어 있으므로 노폐물로 물과 이산화 탄소만 생성됩니다." },
+      { id: 145, unit: "6. 소화·순환·호흡·배설의 관계", question: "세포 호흡으로 방출된 에너지는 근육 운동, 두뇌 활동, 생장뿐만 아니라 체온 유지를 위한 ( ? )에너지로 쓰인다.", options: ["열", "빛", "소리", "전기"], answer: "열", explanation: "세포 호흡에서 발생하는 에너지의 일부는 열로 방출되어 체온을 일정하게 유지시켜 줍니다." },
+      { id: 146, unit: "6. 소화·순환·호흡·배설의 관계", question: "격렬한 운동을 할 때 온몸의 세포에 산소와 영양소를 빠르게 공급하기 위해 ( ? ) 수가 증가한다.", options: ["심장박동", "소화 속도", "적혈구 파괴", "혈소판 생성"], answer: "심장박동", explanation: "운동 시 세포 호흡량이 증가하므로 혈액 순환을 촉진하기 위해 심장박동 수가 증가합니다." },
+      { id: 147, unit: "6. 소화·순환·호흡·배설의 관계", question: "운동할 때 더 많은 산소를 받아들이고 이산화 탄소를 신속히 배출하기 위해 ( ? )률이 증가한다.", options: ["호흡", "소화", "여과", "재흡수"], answer: "호흡", explanation: "필요한 기체 교환량을 충족시키기 위해 분당 숨을 쉬는 횟수인 호흡률이 증가합니다." },
+      { id: 148, unit: "6. 소화·순환·호흡·배설의 관계", question: "온몸의 모세혈관과 조직세포 사이의 물질 교환에서 혈액이 조직세포에 공급하는 물질은 영양소와 ( ? )이다.", options: ["산소", "이산화 탄소", "요소", "암모니아"], answer: "산소", explanation: "모세혈관을 흐르는 동맥혈은 조직세포에 필요한 영양소와 산소를 공급합니다." },
+      { id: 149, unit: "6. 소화·순환·호흡·배설의 관계", question: "조직세포에서 세포 호흡 결과 발생하여 모세혈관으로 이동하는 물질은 노폐물과 ( ? )이다.", options: ["이산화 탄소", "산소", "포도당", "아미노산"], answer: "이산화 탄소", explanation: "조직세포는 생명활동 결과 생성된 이산화 탄소와 노폐물을 모세혈관으로 전달합니다." },
+      { id: 150, unit: "6. 소화·순환·호흡·배설의 관계", question: "세포 호흡 결과 생긴 물은 배설계의 오줌으로 배출되거나 호흡계를 통해 ( ? )의 형태로 배출된다.", options: ["수증기", "땀", "소화액", "혈장"], answer: "수증기", explanation: "체내의 물은 콩팥을 통한 오줌 배출 외에도 폐를 통해 날숨 속 수증기 형태로 일부 배출됩니다." },
+      { id: 151, unit: "6. 소화·순환·호흡·배설의 관계", question: "간에서 만들어진 독성이 적은 요소는 순환계의 ( ? )에 녹아 콩팥으로 이동한다.", options: ["혈장", "적혈구", "백혈구", "혈소판"], answer: "혈장", explanation: "요소, 영양소, 이산화 탄소 등은 혈액의 액체 성분인 혈장에 녹아 운반됩니다." },
+      { id: 152, unit: "6. 소화·순환·호흡·배설의 관계", question: "세포 호흡에 주로 이용되는 탄수화물의 최종 소화 산물은 ( ? )이다.", options: ["포도당", "아미노산", "지방산", "모노글리세리드"], answer: "포도당", explanation: "소화계에서 탄수화물이 분해되어 만들어진 포도당은 세포 호흡의 주된 에너지원입니다." },
+      { id: 153, unit: "6. 소화·순환·호흡·배설의 관계", question: "동물이 에너지를 얻고 생명을 유지하기 위해서는 소화계, 순환계, 호흡계, 배설계가 서로 ( ? )적으로 작용해야 한다.", options: ["통합", "독립", "단절", "대립"], answer: "통합", explanation: "각 기관계는 개별적으로 작동하는 것이 아니라 유기적이고 통합적으로 상호작용합니다." },
+      { id: 154, unit: "6. 소화·순환·호흡·배설의 관계", question: "운동을 할 때에는 골격근으로 혈액 공급이 집중되면서 위나 작은창자 등 ( ? )계의 작용이 상대적으로 억제된다.", options: ["소화", "호흡", "순환", "배설"], answer: "소화", explanation: "운동 시에는 근육 세포로의 산소·영양소 공급이 우선시되므로 소화관으로 가는 혈류량이 줄어 소화 속도가 감소합니다." },
+      { id: 155, unit: "6. 소화·순환·호흡·배설의 관계", question: "소화계의 작은창자 융털에서 흡수된 영양소는 가장 먼저 ( ? )계의 혈관과 암죽관으로 들어가 온몸으로 운반된다.", options: ["순환", "호흡", "배설", "신경"], answer: "순환", explanation: "흡수된 영양소는 순환계의 혈액과 림프액을 타고 온몸의 조직세포로 이동합니다." },
+      { id: 156, unit: "6. 소화·순환·호흡·배설의 관계", question: "세포 호흡이 일어나는 세포 내 주요 장소는 온몸을 구성하는 ( ? )이다.", options: ["조직세포", "혈소판", "허파꽈리", "보먼주머니"], answer: "조직세포", explanation: "세포 호흡은 온몸의 조직세포 내에서 일어나는 에너지를 얻는 화학 반응입니다." },
+      { id: 157, unit: "6. 소화·순환·호흡·배설의 관계", question: "휴식할 때에 비해 운동할 때 조직세포에서 필요로 하는 영양소와 산소의 양은 ( ? )한다.", options: ["증가", "감소", "유지", "소멸"], answer: "증가", explanation: "운동할 때 근육 소모 에너지가 많아지므로 에너지를 만들기 위한 영양소와 산소의 요구량이 급격히 증가합니다." }
+    ];
+
+    // 상태 변수
+    let gameMode = "individual"; 
+    let activeRoomCode = ""; // 4자리 코드
+    let selectedTeam = "";
+    let playerNickname = "";
+    let selectedUnits = [];
+    let currentQuestions = [];
+    let currentQIndex = 0;
+    let score = 0;
+    let timer = null;
+    let timeLeft = 20;
+    let wrongQuestions = [];
+    let startTime = null;
+    let myDurationSec = 0;
+
+    // 동기화 변수
+    let myMemberId = "user_" + Math.random().toString(36).substr(2, 9);
+    let isLeader = false;
+    let lobbyPollInterval = null;
+    let finishPollInterval = null;
+    let teacherPollInterval = null;
+
+    const ALL_TEAMS = ["빨강팀", "주황팀", "노랑팀", "초록팀", "파랑팀", "보라팀", "흰색팀", "검정팀"];
+
+    function selectGameMode(mode) {
+      gameMode = mode;
+      document.getElementById('btn-mode-individual').classList.toggle('active', mode === 'individual');
+      document.getElementById('btn-mode-team').classList.toggle('active', mode === 'team');
+      document.getElementById('code-input-group').style.display = mode === 'team' ? 'flex' : 'none';
+      document.getElementById('team-select-section').style.display = mode === 'team' ? 'block' : 'none';
+      document.getElementById('start-btn').innerText = mode === 'team' ? "대기실 입장하기 🚪" : "시험 시작하기 🚀";
+    }
+
+    function selectTeam(teamName) {
+      selectedTeam = teamName;
+      document.querySelectorAll('.team-card').forEach(card => {
+        if (card.innerText === teamName.replace('팀', '')) {
+          card.classList.add('selected');
+        } else {
+          card.classList.remove('selected');
+        }
+      });
+    }
+
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function playSound(type) {
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+
+      if (type === 'correct') {
+        osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
+        osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1);
+        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+      } else {
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(180, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+      }
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.3);
+    }
+
+    window.onload = () => {
+      const unitListEl = document.getElementById('unit-list');
+      const units = ["전체 선택", ...new Set(quizData.map(q => q.unit))];
+
+      units.forEach(unit => {
+        const card = document.createElement('div');
+        card.className = 'unit-card';
+        card.innerText = unit;
+        card.onclick = () => toggleUnitSelection(card, unit);
+        unitListEl.appendChild(card);
+      });
+
+      window.addEventListener('storage', handleStorageEvent);
+      window.addEventListener('beforeunload', leaveLobby);
+    };
+
+    function toggleUnitSelection(card, unit) {
+      if (unit === "전체 선택") {
+        const allCards = document.querySelectorAll('.unit-card');
+        const isAllSelected = !card.classList.contains('selected');
+        allCards.forEach(c => isAllSelected ? c.classList.add('selected') : c.classList.remove('selected'));
+        selectedUnits = isAllSelected ? [...new Set(quizData.map(q => q.unit))] : [];
+      } else {
+        card.classList.toggle('selected');
+        if (selectedUnits.includes(unit)) selectedUnits = selectedUnits.filter(u => u !== unit);
+        else selectedUnits.push(unit);
+      }
+    }
+
+    // --- [1. 교사 모드 및 방 생성 로직] ---
+    function createNewGameRoom() {
+      let newCode = "";
+      
+      // 이미 사용 중인 코드가 안 나올 때까지 반복 추첨 (데이터 겹침 완전 방지)
+      while (true) {
+        newCode = Math.floor(1000 + Math.random() * 9000).toString();
+        if (!localStorage.getItem(`room_exists_${newCode}`)) {
+          break;
+        }
+      }
+
+      activeRoomCode = newCode;
+
+      localStorage.setItem(`room_exists_${newCode}`, 'true');
+      localStorage.setItem(`room_status_${newCode}`, 'WAITING');
+
+      document.getElementById('teacher-init-box').style.display = 'none';
+      document.getElementById('teacher-active-box').style.display = 'flex';
+      document.getElementById('display-room-code').innerText = newCode;
+
+      updateTeacherMonitorUI();
+      if (teacherPollInterval) clearInterval(teacherPollInterval);
+      teacherPollInterval = setInterval(updateTeacherMonitorUI, 1000);
+    }
+
+    function updateTeacherMonitorUI() {
+      const statusContainer = document.getElementById('teacher-teams-status');
+      statusContainer.innerHTML = '';
+
+      let totalStudents = 0;
+      let totalFinished = 0;
+
+      ALL_TEAMS.forEach(team => {
+        const lobbyKey = `lobby_${activeRoomCode}_${team}`;
+        const finishKey = `finish_${activeRoomCode}_${team}`;
+
+        const members = JSON.parse(localStorage.getItem(lobbyKey) || "[]");
+        const finishes = JSON.parse(localStorage.getItem(finishKey) || "[]");
+
+        if (members.length > 0) {
+          totalStudents += members.length;
+          totalFinished += finishes.length;
+
+          const card = document.createElement('div');
+          card.className = 'teacher-team-card';
+          const percent = Math.round((finishes.length / members.length) * 100);
+
+          card.innerHTML = `
+            <h4>
+              <span>🚩 ${team} (${members.length}명)</span>
+              <span style="color: var(--teacher-color);">${finishes.length} / ${members.length} 완료 (${percent}%)</span>
+            </h4>
+            <div class="progress-bar-bg">
+              <div class="progress-bar-fill" style="width: ${percent}%;"></div>
+            </div>
+            <div style="font-size: 0.85rem; color: #636E72; margin-top: 4px;">
+              명단: ${members.map(m => m.nickname).join(', ')}
+            </div>
+          `;
+          statusContainer.appendChild(card);
+        }
+      });
+
+      if (totalStudents === 0) {
+        statusContainer.innerHTML = `<p style="text-align: center; color: #95A5A6;">아직 참여한 학생이 없습니다.</p>`;
+      }
+    }
+
+    function forceFinishGame() {
+      if (!activeRoomCode) return;
+      if (confirm("모든 학생의 게임을 즉시 종료하고 결과 화면으로 전환시킬까요?")) {
+        localStorage.setItem(`room_status_${activeRoomCode}`, 'FORCE_FINISHED');
+        renderTeacherSummary();
+      }
+    }
+
+    function renderTeacherSummary() {
+      const summaryBox = document.getElementById('teacher-summary-box');
+      const summaryList = document.getElementById('teacher-summary-list');
+      summaryList.innerHTML = '';
+      summaryBox.style.display = 'flex';
+
+      ALL_TEAMS.forEach(team => {
+        const finishKey = `finish_${activeRoomCode}_${team}`;
+        const finishes = JSON.parse(localStorage.getItem(finishKey) || "[]");
+
+        if (finishes.length > 0) {
+          const avgScore = (finishes.reduce((a, b) => a + b.score, 0) / finishes.length).toFixed(1);
+          const avgTime = Math.round(finishes.reduce((a, b) => a + b.timeSec, 0) / finishes.length);
+          
+          const row = document.createElement('div');
+          row.style.display = 'flex';
+          row.style.justifyContent = 'space-between';
+          row.innerHTML = `<span><strong>🚩 ${team}</strong> (${finishes.length}명 제출)</span> <span>평균 ${avgScore}점 / 평균 ${avgTime}초</span>`;
+          summaryList.appendChild(row);
+        }
+      });
+    }
+
+    function resetTeacherRoom() {
+      if (confirm("방을 닫으시겠습니까? (진행된 방의 데이터 로그는 깔끔히 초기화됩니다)")) {
+        if (teacherPollInterval) clearInterval(teacherPollInterval);
+
+        // 해당 방 코드와 관련된 모든 localStorage 키 삭제 (청소)
+        if (activeRoomCode) {
+          localStorage.removeItem(`room_exists_${activeRoomCode}`);
+          localStorage.removeItem(`room_status_${activeRoomCode}`);
+
+          ALL_TEAMS.forEach(team => {
+            localStorage.removeItem(`lobby_${activeRoomCode}_${team}`);
+            localStorage.removeItem(`start_signal_${activeRoomCode}_${team}`);
+            localStorage.removeItem(`finish_${activeRoomCode}_${team}`);
+          });
+        }
+
+        activeRoomCode = ""; // 방 코드 초기화
+
+        document.getElementById('teacher-init-box').style.display = 'flex';
+        document.getElementById('teacher-active-box').style.display = 'none';
+        document.getElementById('teacher-summary-box').style.display = 'none';
+        switchScreen('start-screen');
+      }
+    }
+
+    // --- [2. 학생 접속 및 대기실 로직] ---
+    function handleStartClick() {
+      const nicknameInput = document.getElementById('nickname').value.trim();
+      if (!nicknameInput) return alert("이름 또는 별명을 입력해주세요!");
+      playerNickname = nicknameInput;
+
+      if (selectedUnits.length === 0) {
+        selectedUnits = [...new Set(quizData.map(q => q.unit))];
+      }
+
+      if (gameMode === 'team') {
+        const codeInput = document.getElementById('room-code').value.trim();
+        if (codeInput.length !== 4) return alert("4자리 참여 코드를 올바르게 입력해주세요!");
+        if (!localStorage.getItem(`room_exists_${codeInput}`)) return alert("존재하지 않거나 종료된 방 코드입니다!");
+        
+        if (!selectedTeam) return alert("참여할 팀을 선택해주세요!");
+
+        activeRoomCode = codeInput;
+        enterLobby();
+      } else {
+        startQuizDirect();
+      }
+    }
+
+    function enterLobby() {
+      switchScreen('lobby-screen');
+      document.getElementById('lobby-team-title').innerText = `🚩 [코드:${activeRoomCode}] ${selectedTeam}`;
+
+      const lobbyKey = `lobby_${activeRoomCode}_${selectedTeam}`;
+      let members = JSON.parse(localStorage.getItem(lobbyKey) || "[]");
+
+      members = members.filter(m => m.id !== myMemberId);
+      members.push({ id: myMemberId, nickname: playerNickname, joinedAt: Date.now() });
+      localStorage.setItem(lobbyKey, JSON.stringify(members));
+
+      updateLobbyUI();
+
+      if (lobbyPollInterval) clearInterval(lobbyPollInterval);
+      lobbyPollInterval = setInterval(updateLobbyUI, 1000);
+    }
+
+    function leaveLobby() {
+      if (gameMode === 'team' && activeRoomCode && selectedTeam) {
+        const lobbyKey = `lobby_${activeRoomCode}_${selectedTeam}`;
+        let members = JSON.parse(localStorage.getItem(lobbyKey) || "[]");
+        members = members.filter(m => m.id !== myMemberId);
+        localStorage.setItem(lobbyKey, JSON.stringify(members));
+      }
+    }
+
+    function updateLobbyUI() {
+      const lobbyKey = `lobby_${activeRoomCode}_${selectedTeam}`;
+      let members = JSON.parse(localStorage.getItem(lobbyKey) || "[]");
+
+      if (members.length === 0) return;
+
+      // 대표 결정 로직: 방에 남아있는 사람 중 가장 일찍 들어온 사람을 대표로 승계
+      members.sort((a, b) => a.joinedAt - b.joinedAt);
+      const leader = members[0];
+      isLeader = (leader.id === myMemberId);
+
+      document.getElementById('lobby-team-title').innerText = `🚩 [코드:${activeRoomCode}] ${selectedTeam} (${members.length}명 접속 중)`;
+      document.getElementById('my-role-badge').innerText = isLeader ? "👑 팀 대표 (시작 권한)" : "팀원";
+
+      const startBtn = document.getElementById('team-start-btn');
+      const statusMsg = document.getElementById('lobby-status-msg');
+
+      if (isLeader) {
+        startBtn.disabled = false;
+        startBtn.innerText = "🚀 시작하기 (팀 대표 클릭!)";
+        statusMsg.innerText = "팀원들이 모두 모였다면 '시작하기' 버튼을 눌러 출발하세요.";
+      } else {
+        startBtn.disabled = true;
+        startBtn.innerText = "⏳ 팀 대표가 시작하길 기다리는 중...";
+        statusMsg.innerText = `현재 [${leader.nickname}] 팀 대표 학생이 시험을 시작하길 기다리는 중입니다.`;
+      }
+
+      const grid = document.getElementById('lobby-member-grid');
+      grid.innerHTML = '';
+      members.forEach(m => {
+        const card = document.createElement('div');
+        card.className = `member-card ${m.id === leader.id ? 'is-leader' : ''}`;
+        card.innerText = m.nickname;
+        grid.appendChild(card);
+      });
+
+      // 팀 출발 신호 수신 확인
+      const signalKey = `start_signal_${activeRoomCode}_${selectedTeam}`;
+      if (localStorage.getItem(signalKey) === 'START') {
+        clearInterval(lobbyPollInterval);
+        startQuizDirect();
+      }
+    }
+
+    function startTeamQuiz() {
+      if (!isLeader) return;
+      localStorage.setItem(`start_signal_${activeRoomCode}_${selectedTeam}`, 'START');
+      clearInterval(lobbyPollInterval);
+      startQuizDirect();
+    }
+
+    // --- [3. 퀴즈 진행 및 완주 동기화] ---
+    function startQuizDirect() {
+      currentQuestions = quizData.filter(q => selectedUnits.includes(q.unit));
+      currentQuestions.sort(() => Math.random() - 0.5);
+      currentQuestions = currentQuestions.slice(0, 10);
+
+      currentQIndex = 0;
+      score = 0;
+      wrongQuestions = [];
+      startTime = new Date();
+
+      const modePrefix = gameMode === 'team' ? `[${selectedTeam}] ` : '';
+      document.getElementById('player-display').innerText = `플레이어: ${modePrefix}${playerNickname}`;
+      switchScreen('game-screen');
+      loadQuestion();
+    }
+
+    function switchScreen(screenId) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(screenId).classList.add('active');
+    }
+
+    function loadQuestion() {
+      if (currentQIndex >= currentQuestions.length) {
+        handleQuizFinish();
+        return;
+      }
+
+      clearInterval(timer);
+      timeLeft = 20;
+      updateTimerBar();
+
+      const q = currentQuestions[currentQIndex];
+      document.getElementById('score').innerText = score;
+      document.getElementById('progress').innerText = `${currentQIndex + 1} / ${currentQuestions.length}`;
+      
+      document.getElementById('question-box').innerText = q.question;
+
+      const optionsGrid = document.getElementById('options-grid');
+      optionsGrid.innerHTML = '';
+      
+      const shuffledOptions = [...q.options].sort(() => Math.random() - 0.5);
+      shuffledOptions.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.className = 'option-btn';
+        btn.innerText = opt;
+        btn.onclick = () => checkAnswer(opt, q, btn);
+        optionsGrid.appendChild(btn);
+      });
+
+      timer = setInterval(() => {
+        timeLeft--;
+        updateTimerBar();
+        if (timeLeft <= 0) {
+          clearInterval(timer);
+          checkAnswer(null, q, null);
+        }
+      }, 1000);
+    }
+
+    function updateTimerBar() {
+      document.getElementById('timer-bar').style.width = `${(timeLeft / 20) * 100}%`;
+    }
+
+    function checkAnswer(selectedOption, questionObj, btnElement) {
+      clearInterval(timer);
+      const isCorrect = selectedOption === questionObj.answer;
+      const allBtns = document.querySelectorAll('.option-btn');
+      allBtns.forEach(b => b.onclick = null);
+
+      if (isCorrect) {
+        playSound('correct');
+        if (btnElement) btnElement.classList.add('correct');
+        score += 10;
+        document.getElementById('score').innerText = score;
+        setTimeout(() => { currentQIndex++; loadQuestion(); }, 800);
+      } else {
+        playSound('wrong');
+        if (btnElement) btnElement.classList.add('wrong');
+        allBtns.forEach(b => { if (b.innerText === questionObj.answer) b.classList.add('correct'); });
+
+        wrongQuestions.push(questionObj);
+
+        setTimeout(() => {
+          document.getElementById('modal-title').innerText = selectedOption ? "아쉽네요! 오답입니다." : "시간 초과! ⏰";
+          document.getElementById('modal-answer').innerText = `정답: ${questionObj.answer}`;
+          document.getElementById('modal-explanation').innerText = questionObj.explanation;
+          document.getElementById('modal').style.display = 'flex';
+        }, 600);
+      }
+    }
+
+    function closeModalNext() {
+      document.getElementById('modal').style.display = 'none';
+      currentQIndex++;
+      loadQuestion();
+    }
+
+    function handleQuizFinish() {
+      const endTime = new Date();
+      myDurationSec = Math.floor((endTime - startTime) / 1000);
+
+      if (gameMode === 'individual') {
+        renderFinalResult();
+      } else {
+        switchScreen('waiting-finish-screen');
+        
+        const finishKey = `finish_${activeRoomCode}_${selectedTeam}`;
+        let finishes = JSON.parse(localStorage.getItem(finishKey) || "[]");
+        finishes = finishes.filter(f => f.id !== myMemberId);
+        finishes.push({
+          id: myMemberId,
+          nickname: playerNickname,
+          score: score,
+          timeSec: myDurationSec
+        });
+        localStorage.setItem(finishKey, JSON.stringify(finishes));
+
+        checkTeamFinishStatus();
+        if (finishPollInterval) clearInterval(finishPollInterval);
+        finishPollInterval = setInterval(checkTeamFinishStatus, 1000);
+      }
+    }
+
+    function checkTeamFinishStatus() {
+      const lobbyKey = `lobby_${activeRoomCode}_${selectedTeam}`;
+      const finishKey = `finish_${activeRoomCode}_${selectedTeam}`;
+
+      const members = JSON.parse(localStorage.getItem(lobbyKey) || "[]");
+      const finishes = JSON.parse(localStorage.getItem(finishKey) || "[]");
+
+      document.getElementById('waiting-count-text').innerText = `완료 현황: ${members.length}명 중 ${finishes.length}명 제출 완료`;
+
+      const roomStatus = localStorage.getItem(`room_status_${activeRoomCode}`);
+
+      // 조건: 전원 완료 OR 교사 강제 종료 신호
+      if ((members.length > 0 && finishes.length >= members.length) || roomStatus === 'FORCE_FINISHED') {
+        clearInterval(finishPollInterval);
+        renderFinalResult();
+      }
+    }
+
+    function handleStorageEvent(e) {
+      if (gameMode === 'team') {
+        const signalKey = `start_signal_${activeRoomCode}_${selectedTeam}`;
+        if (e.key === signalKey && e.newValue === 'START') {
+          clearInterval(lobbyPollInterval);
+          startQuizDirect();
+        }
+        if (e.key === `room_status_${activeRoomCode}` && e.newValue === 'FORCE_FINISHED') {
+          checkTeamFinishStatus();
+        }
+      }
+    }
+
+    // --- [5. 학생 결과 화면 및 완벽 무작위 정렬] ---
+    function renderFinalResult() {
+      switchScreen('result-screen');
+
+      const minutes = Math.floor(myDurationSec / 60);
+      const seconds = myDurationSec % 60;
+      const timeString = minutes > 0 ? `${minutes}분 ${seconds}초` : `${seconds}초`;
+
+      document.getElementById('final-score').innerText = `${score}점`;
+      document.getElementById('correct-count-text').innerText = `${currentQuestions.length}문제 중 ${score / 10}문제를 맞췄습니다.`;
+      document.getElementById('total-time').innerText = timeString;
+
+      const badgeEl = document.getElementById('rank-badge');
+      if (score === currentQuestions.length * 10) badgeEl.innerText = "🏆 미래의 아인슈타인";
+      else if (score >= currentQuestions.length * 8) badgeEl.innerText = "🥇 수석 과학 연구원";
+      else if (score >= currentQuestions.length * 6) badgeEl.innerText = "🥈 우수 과학 탐험가";
+      else badgeEl.innerText = "🌱 꿈꾸는 과학 새싹";
+
+      if (gameMode === 'team') {
+        document.getElementById('result-nickname').innerText = `🚩 [${selectedTeam}] ${playerNickname} 학생`;
+        document.getElementById('team-result-box').style.display = 'flex';
+        document.getElementById('team-name-badge').innerText = `🚩 [코드:${activeRoomCode}] ${selectedTeam} 종합 결과`;
+
+        calculateAndShowTeamResults();
+      } else {
+        document.getElementById('result-nickname').innerText = `👤 ${playerNickname} 학생의 결과`;
+        document.getElementById('team-result-box').style.display = 'none';
+      }
+
+      const reviewList = document.getElementById('review-list');
+      reviewList.innerHTML = '';
+      wrongQuestions.forEach(q => {
+        const item = document.createElement('div');
+        item.className = 'review-item';
+        item.innerHTML = `<strong>[${q.unit}]</strong> ${q.question.replace('( ? )', `<u>${q.answer}</u>`)}<br><small style="color:#636E72;">💡 ${q.explanation}</small>`;
+        reviewList.appendChild(item);
+      });
+    }
+
+    function calculateAndShowTeamResults() {
+      const finishKey = `finish_${activeRoomCode}_${selectedTeam}`;
+      const finishes = JSON.parse(localStorage.getItem(finishKey) || "[]");
+
+      if (finishes.length === 0) return;
+
+      const totalScore = finishes.reduce((acc, cur) => acc + cur.score, 0);
+      const totalTime = finishes.reduce((acc, cur) => acc + cur.timeSec, 0);
+      
+      const avgScore = (totalScore / finishes.length).toFixed(1);
+      const avgTimeSec = Math.round(totalTime / finishes.length);
+
+      const avgMinutes = Math.floor(avgTimeSec / 60);
+      const avgSeconds = avgTimeSec % 60;
+      const avgTimeString = avgMinutes > 0 ? `${avgMinutes}분 ${avgSeconds}초` : `${avgSeconds}초`;
+
+      // 🔒 풀이 속도 특정 방지를 위한 무작위(랜덤) 셔플 정렬
+      const shuffledFinishes = [...finishes].sort(() => Math.random() - 0.5);
+      const memberNames = shuffledFinishes.map(m => m.nickname).join(', ');
+
+      document.getElementById('team-avg-score').innerText = `${avgScore}점`;
+      document.getElementById('team-avg-time').innerText = avgTimeString;
+      document.getElementById('team-members-list').innerText = memberNames;
+    }
+
+    function downloadResultImage() {
+      const captureArea = document.getElementById('capture-area');
+      html2canvas(captureArea).then(canvas => {
+        const link = document.createElement('a');
+        link.download = `${activeRoomCode || '개인전'}_${playerNickname}_결과.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      });
+    }
+
+    function toggleReview() {
+      const container = document.getElementById('review-container');
+      if (wrongQuestions.length === 0) {
+        alert("틀린 문제가 없습니다! 완벽해요 👏");
+        return;
+      }
+      container.style.display = container.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function resetToMain() {
+      leaveLobby();
+      if (lobbyPollInterval) clearInterval(lobbyPollInterval);
+      if (finishPollInterval) clearInterval(finishPollInterval);
+      
+      document.getElementById('review-container').style.display = 'none';
+      switchScreen('start-screen');
+    }
+  </script>
+</body>
+</html>
