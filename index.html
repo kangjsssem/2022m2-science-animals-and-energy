@@ -3,9 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>동물과 에너지 - 빈칸 채우기 형성평가 (최종본)</title>
+  <title>동물과 에너지 - 빈칸 채우기 형성평가 (최종실시간 연동판)</title>
   <!-- 이미지 저장을 위한 html2canvas 라이브러리 -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+  <!-- Firebase SDK (v9 호환 모드) -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
   <style>
     :root {
       --primary-color: #6C5CE7;
@@ -69,7 +74,6 @@
       font-size: 1rem;
     }
 
-    /* Mode Selection Tabs */
     .mode-tabs {
       display: flex;
       gap: 10px;
@@ -105,11 +109,8 @@
       text-align: center;
       transition: all 0.2s;
     }
-    .teacher-top-btn:hover {
-      background-color: #D6E8FF;
-    }
+    .teacher-top-btn:hover { background-color: #D6E8FF; }
 
-    /* Input Styles */
     .input-group {
       display: flex;
       flex-direction: column;
@@ -133,9 +134,7 @@
       background-color: white;
     }
 
-    .input-field:focus {
-      border-color: var(--primary-color);
-    }
+    .input-field:focus { border-color: var(--primary-color); }
 
     .code-input-field {
       text-align: center;
@@ -145,7 +144,6 @@
       color: var(--primary-color);
     }
 
-    /* Team Selection Grid */
     .team-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -172,7 +170,6 @@
       transform: scale(1.03);
     }
 
-    /* Team Colors */
     .team-red { background-color: #FF7675; color: white; }
     .team-orange { background-color: #FAB1A0; color: #2D3436; }
     .team-yellow { background-color: #FFEAA7; color: #2D3436; }
@@ -182,7 +179,6 @@
     .team-white { background-color: #FFFFFF; color: #2D3436; border-color: #DFE6E9 !important; }
     .team-black { background-color: #2D3436; color: white; }
 
-    /* Buttons */
     .btn {
       background-color: var(--primary-color);
       color: white;
@@ -196,18 +192,8 @@
       box-shadow: 0 4px 12px rgba(108, 92, 231, 0.2);
     }
 
-    .btn:hover {
-      background-color: #5B4BC4;
-      transform: translateY(-2px);
-    }
-
-    .btn:disabled {
-      background-color: #B2BEC3;
-      cursor: not-allowed;
-      box-shadow: none;
-      transform: none;
-    }
-
+    .btn:hover { background-color: #5B4BC4; transform: translateY(-2px); }
+    .btn:disabled { background-color: #B2BEC3; cursor: not-allowed; box-shadow: none; transform: none; }
     .btn-secondary { background-color: #00CEC9; }
     .btn-secondary:hover { background-color: #00B5B2; }
     .btn-teacher { background-color: var(--teacher-color); }
@@ -215,7 +201,6 @@
     .btn-danger { background-color: #D63031; }
     .btn-danger:hover { background-color: #B02324; }
 
-    /* Unit Grid */
     .unit-list {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -234,18 +219,9 @@
       text-align: center;
     }
 
-    .unit-card:hover {
-      border-color: var(--primary-light);
-      background-color: #F3F0FF;
-    }
+    .unit-card:hover { border-color: var(--primary-light); background-color: #F3F0FF; }
+    .unit-card.selected { border-color: var(--primary-color); background-color: #ECE8FF; color: var(--primary-color); }
 
-    .unit-card.selected {
-      border-color: var(--primary-color);
-      background-color: #ECE8FF;
-      color: var(--primary-color);
-    }
-
-    /* Lobby UI Styles */
     .lobby-box {
       background-color: #F8F9FA;
       border: 2px solid #E9ECEF;
@@ -302,7 +278,6 @@
       border-radius: 8px;
     }
 
-    /* Game UI */
     .status-bar {
       display: flex;
       justify-content: space-between;
@@ -352,9 +327,7 @@
       gap: 12px;
     }
 
-    @media (max-width: 500px) {
-      .options-grid { grid-template-columns: 1fr; }
-    }
+    @media (max-width: 500px) { .options-grid { grid-template-columns: 1fr; } }
 
     .option-btn {
       background: white;
@@ -367,24 +340,10 @@
       transition: all 0.2s;
     }
 
-    .option-btn:hover {
-      border-color: var(--primary-light);
-      background-color: #F8F9FA;
-    }
+    .option-btn:hover { border-color: var(--primary-light); background-color: #F8F9FA; }
+    .option-btn.correct { background-color: var(--correct-color) !important; color: white !important; border-color: var(--correct-color) !important; }
+    .option-btn.wrong { background-color: var(--wrong-color) !important; color: white !important; border-color: var(--wrong-color) !important; }
 
-    .option-btn.correct {
-      background-color: var(--correct-color) !important;
-      color: white !important;
-      border-color: var(--correct-color) !important;
-    }
-
-    .option-btn.wrong {
-      background-color: var(--wrong-color) !important;
-      color: white !important;
-      border-color: var(--wrong-color) !important;
-    }
-
-    /* Modal */
     .modal-overlay {
       position: absolute;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -408,7 +367,6 @@
       gap: 16px;
     }
 
-    /* Waiting Finish Screen UI */
     .waiting-spinner {
       width: 50px;
       height: 50px;
@@ -419,12 +377,8 @@
       margin: 20px auto;
     }
 
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-    /* Result Card */
     .result-card {
       background: #FFFFFF;
       border: 2px solid #E9ECEF;
@@ -437,38 +391,10 @@
       align-items: center;
     }
 
-    .user-tag {
-      font-size: 1.2rem;
-      font-weight: bold;
-      color: var(--primary-color);
-    }
-
-    .badge {
-      background-color: var(--accent-color);
-      color: #D63031;
-      padding: 6px 16px;
-      border-radius: 20px;
-      font-size: 1.1rem;
-      font-weight: bold;
-    }
-
-    .score-text {
-      font-size: 2.5rem;
-      font-weight: 900;
-      color: var(--primary-color);
-    }
-
-    .meta-info {
-      font-size: 0.95rem;
-      color: #636E72;
-      background: #F8F9FA;
-      padding: 8px 16px;
-      border-radius: 12px;
-      display: flex;
-      gap: 16px;
-      justify-content: center;
-      width: 100%;
-    }
+    .user-tag { font-size: 1.2rem; font-weight: bold; color: var(--primary-color); }
+    .badge { background-color: var(--accent-color); color: #D63031; padding: 6px 16px; border-radius: 20px; font-size: 1.1rem; font-weight: bold; }
+    .score-text { font-size: 2.5rem; font-weight: 900; color: var(--primary-color); }
+    .meta-info { font-size: 0.95rem; color: #636E72; background: #F8F9FA; padding: 8px 16px; border-radius: 12px; display: flex; gap: 16px; justify-content: center; width: 100%; }
 
     .team-stats-box {
       width: 100%;
@@ -482,25 +408,8 @@
       text-align: left;
     }
 
-    .team-stats-title {
-      font-weight: bold;
-      font-size: 1.05rem;
-      color: var(--primary-color);
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .team-members-list {
-      font-size: 0.85rem;
-      color: #57606F;
-      word-break: break-all;
-      background: white;
-      padding: 8px 12px;
-      border-radius: 8px;
-      border: 1px solid #E9ECEF;
-      line-height: 1.5;
-    }
+    .team-stats-title { font-weight: bold; font-size: 1.05rem; color: var(--primary-color); display: flex; align-items: center; gap: 6px; }
+    .team-members-list { font-size: 0.85rem; color: #57606F; word-break: break-all; background: white; padding: 8px 12px; border-radius: 8px; border: 1px solid #E9ECEF; line-height: 1.5; }
 
     .review-list {
       width: 100%;
@@ -515,16 +424,8 @@
       gap: 10px;
     }
 
-    .review-item {
-      background: white;
-      padding: 10px 12px;
-      border-radius: 8px;
-      border-left: 4px solid var(--wrong-color);
-      font-size: 0.9rem;
-      line-height: 1.6;
-    }
+    .review-item { background: white; padding: 10px 12px; border-radius: 8px; border-left: 4px solid var(--wrong-color); font-size: 0.9rem; line-height: 1.6; }
 
-    /* 교시 모드 전용 스타일 */
     .teacher-code-display {
       font-size: 3.5rem;
       font-weight: 900;
@@ -547,30 +448,15 @@
       gap: 8px;
     }
 
-    .teacher-team-card h4 {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .progress-bar-bg {
-      height: 10px;
-      background: #E9ECEF;
-      border-radius: 5px;
-      overflow: hidden;
-    }
-    .progress-bar-fill {
-      height: 100%;
-      background: var(--teacher-color);
-      width: 0%;
-      transition: width 0.3s;
-    }
+    .teacher-team-card h4 { display: flex; justify-content: space-between; align-items: center; }
+    .progress-bar-bg { height: 10px; background: #E9ECEF; border-radius: 5px; overflow: hidden; }
+    .progress-bar-fill { height: 100%; background: var(--teacher-color); width: 0%; transition: width 0.3s; }
   </style>
 </head>
 <body>
 
   <div class="app-container">
-    <!-- 1. 메인 화면 (학생 진입) -->
+    <!-- 1. 메인 화면 -->
     <div id="start-screen" class="screen active">
       <div class="teacher-top-btn" onclick="switchScreen('teacher-screen')">
         👨‍🏫 선생님이신가요? [교사 모드 진입]
@@ -579,13 +465,11 @@
       <h1>🧍 동물과 에너지 형성평가</h1>
       <p class="subtitle">중학교 2학년 과학 빈칸 채우기 게임</p>
       
-      <!-- 게임 모드 선택 -->
       <div class="mode-tabs">
         <button id="btn-mode-individual" class="mode-btn active" onclick="selectGameMode('individual')">👤 개인전</button>
         <button id="btn-mode-team" class="mode-btn" onclick="selectGameMode('team')">👥 팀전</button>
       </div>
 
-      <!-- 팀전일 경우 참여 코드 입력 -->
       <div class="input-group" id="code-input-group" style="display: none;">
         <label for="room-code">4자리 참여 코드:</label>
         <input type="text" id="room-code" class="input-field code-input-field" placeholder="0000" maxlength="4" inputmode="numeric">
@@ -596,7 +480,6 @@
         <input type="text" id="nickname" class="input-field" placeholder="예: 2학년3반 김과학" maxlength="12">
       </div>
 
-      <!-- 팀전 전용 팀 선택 창 -->
       <div id="team-select-section" style="display: none;">
         <label style="font-weight: bold; display: block; margin-bottom: 8px;">팀 선택:</label>
         <div class="team-grid">
@@ -637,9 +520,7 @@
 
         <div class="lobby-box">
           <h3>📊 실시간 팀별 현황 및 완주 상태</h3>
-          <div id="teacher-teams-status" style="display: flex; flex-direction: column; gap: 12px; margin-top: 10px;">
-            <!-- 팀 현황이 동적으로 들어옴 -->
-          </div>
+          <div id="teacher-teams-status" style="display: flex; flex-direction: column; gap: 12px; margin-top: 10px;"></div>
         </div>
 
         <div style="display: flex; gap: 10px;">
@@ -708,7 +589,6 @@
     <div id="result-screen" class="screen">
       <h1>🎉 최종 결과 카드</h1>
       
-      <!-- 이미지로 캡처될 영역 -->
       <div id="capture-area" class="result-card">
         <div class="user-tag" id="result-nickname">학번/이름</div>
         <div class="score-text" id="final-score">0점</div>
@@ -719,7 +599,6 @@
           <span>⏱️ 내 소요시간: <strong id="total-time">-</strong></span>
         </div>
 
-        <!-- 팀전 결과 정보 영역 -->
         <div id="team-result-box" class="team-stats-box" style="display: none;">
           <div class="team-stats-title">
             <span id="team-name-badge">🚩 팀 정보</span>
@@ -759,6 +638,24 @@
   </div>
 
   <script>
+    // -------------------------------------------------------------------
+    // 🔥 Firebase 실시간 연동 정보 설정
+    // -------------------------------------------------------------------
+    const firebaseConfig = {
+      apiKey: "AIzaSyB701WalOtYpus2_xM4Yi_rpfN3mvgIN78",
+      authDomain: "animals-and-energy.firebaseapp.com",
+      databaseURL: "https://animals-and-energy-default-rtdb.firebaseio.com",
+      projectId: "animals-and-energy",
+      storageBucket: "animals-and-energy.firebasestorage.app",
+      messagingSenderId: "299076285258",
+      appId: "1:299076285258:web:86bb780cfb5c51b10147b3",
+      measurementId: "G-42S27H676X"
+    };
+
+    // Firebase 초기화
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
     // [전체 문제 데이터셋] 총 157문항 (1~6단원 전체 반영)
     const quizData = [
       // --- 1. 영양소 단원 (25문항) ---
@@ -931,9 +828,8 @@
       { id: 157, unit: "6. 소화·순환·호흡·배설의 관계", question: "휴식할 때에 비해 운동할 때 조직세포에서 필요로 하는 영양소와 산소의 양은 ( ? )한다.", options: ["증가", "감소", "유지", "소멸"], answer: "증가", explanation: "운동할 때 근육 소모 에너지가 많아지므로 에너지를 만들기 위한 영양소와 산소의 요구량이 급격히 증가합니다." }
     ];
 
-    // 상태 변수
     let gameMode = "individual"; 
-    let activeRoomCode = ""; // 4자리 코드
+    let activeRoomCode = "";
     let selectedTeam = "";
     let playerNickname = "";
     let selectedUnits = [];
@@ -946,12 +842,13 @@
     let startTime = null;
     let myDurationSec = 0;
 
-    // 동기화 변수
     let myMemberId = "user_" + Math.random().toString(36).substr(2, 9);
     let isLeader = false;
-    let lobbyPollInterval = null;
-    let finishPollInterval = null;
-    let teacherPollInterval = null;
+
+    // Firebase 리스너 해제용
+    let lobbyRef = null;
+    let signalRef = null;
+    let finishRef = null;
 
     const ALL_TEAMS = ["빨강팀", "주황팀", "노랑팀", "초록팀", "파랑팀", "보라팀", "흰색팀", "검정팀"];
 
@@ -967,11 +864,8 @@
     function selectTeam(teamName) {
       selectedTeam = teamName;
       document.querySelectorAll('.team-card').forEach(card => {
-        if (card.innerText === teamName.replace('팀', '')) {
-          card.classList.add('selected');
-        } else {
-          card.classList.remove('selected');
-        }
+        if (card.innerText === teamName.replace('팀', '')) card.classList.add('selected');
+        else card.classList.remove('selected');
       });
     }
 
@@ -1010,7 +904,6 @@
         unitListEl.appendChild(card);
       });
 
-      window.addEventListener('storage', handleStorageEvent);
       window.addEventListener('beforeunload', leaveLobby);
     };
 
@@ -1027,50 +920,48 @@
       }
     }
 
-    // --- [1. 교사 모드 및 방 생성 로직] ---
-    function createNewGameRoom() {
+    // --- [교사 모드] ---
+    async function createNewGameRoom() {
       let newCode = "";
-      
-      // 이미 사용 중인 코드가 안 나올 때까지 반복 추첨 (데이터 겹침 완전 방지)
       while (true) {
         newCode = Math.floor(1000 + Math.random() * 9000).toString();
-        if (!localStorage.getItem(`room_exists_${newCode}`)) {
-          break;
-        }
+        const snapshot = await db.ref(`rooms/${newCode}`).once('value');
+        if (!snapshot.exists()) break;
       }
 
       activeRoomCode = newCode;
-
-      localStorage.setItem(`room_exists_${newCode}`, 'true');
-      localStorage.setItem(`room_status_${newCode}`, 'WAITING');
+      await db.ref(`rooms/${newCode}`).set({
+        status: 'WAITING',
+        createdAt: Date.now()
+      });
 
       document.getElementById('teacher-init-box').style.display = 'none';
       document.getElementById('teacher-active-box').style.display = 'flex';
       document.getElementById('display-room-code').innerText = newCode;
 
-      updateTeacherMonitorUI();
-      if (teacherPollInterval) clearInterval(teacherPollInterval);
-      teacherPollInterval = setInterval(updateTeacherMonitorUI, 1000);
+      db.ref(`rooms/${newCode}`).on('value', (snapshot) => {
+        const data = snapshot.val();
+        updateTeacherMonitorUI(data);
+      });
     }
 
-    function updateTeacherMonitorUI() {
+    function updateTeacherMonitorUI(roomData) {
       const statusContainer = document.getElementById('teacher-teams-status');
       statusContainer.innerHTML = '';
 
+      if (!roomData) return;
+
       let totalStudents = 0;
-      let totalFinished = 0;
 
       ALL_TEAMS.forEach(team => {
-        const lobbyKey = `lobby_${activeRoomCode}_${team}`;
-        const finishKey = `finish_${activeRoomCode}_${team}`;
+        const membersObj = roomData.lobbies ? roomData.lobbies[team] : null;
+        const finishesObj = roomData.finishes ? roomData.finishes[team] : null;
 
-        const members = JSON.parse(localStorage.getItem(lobbyKey) || "[]");
-        const finishes = JSON.parse(localStorage.getItem(finishKey) || "[]");
+        const members = membersObj ? Object.values(membersObj) : [];
+        const finishes = finishesObj ? Object.values(finishesObj) : [];
 
         if (members.length > 0) {
           totalStudents += members.length;
-          totalFinished += finishes.length;
-
           const card = document.createElement('div');
           card.className = 'teacher-team-card';
           const percent = Math.round((finishes.length / members.length) * 100);
@@ -1099,52 +990,43 @@
     function forceFinishGame() {
       if (!activeRoomCode) return;
       if (confirm("모든 학생의 게임을 즉시 종료하고 결과 화면으로 전환시킬까요?")) {
-        localStorage.setItem(`room_status_${activeRoomCode}`, 'FORCE_FINISHED');
+        db.ref(`rooms/${activeRoomCode}/status`).set('FORCE_FINISHED');
         renderTeacherSummary();
       }
     }
 
-    function renderTeacherSummary() {
+    async function renderTeacherSummary() {
       const summaryBox = document.getElementById('teacher-summary-box');
       const summaryList = document.getElementById('teacher-summary-list');
       summaryList.innerHTML = '';
       summaryBox.style.display = 'flex';
 
-      ALL_TEAMS.forEach(team => {
-        const finishKey = `finish_${activeRoomCode}_${team}`;
-        const finishes = JSON.parse(localStorage.getItem(finishKey) || "[]");
+      const snapshot = await db.ref(`rooms/${activeRoomCode}/finishes`).once('value');
+      const finishesData = snapshot.val() || {};
 
-        if (finishes.length > 0) {
-          const avgScore = (finishes.reduce((a, b) => a + b.score, 0) / finishes.length).toFixed(1);
-          const avgTime = Math.round(finishes.reduce((a, b) => a + b.timeSec, 0) / finishes.length);
+      ALL_TEAMS.forEach(team => {
+        const teamFinishes = finishesData[team] ? Object.values(finishesData[team]) : [];
+        if (teamFinishes.length > 0) {
+          const avgScore = (teamFinishes.reduce((a, b) => a + b.score, 0) / teamFinishes.length).toFixed(1);
+          const avgTime = Math.round(teamFinishes.reduce((a, b) => a + b.timeSec, 0) / teamFinishes.length);
           
           const row = document.createElement('div');
           row.style.display = 'flex';
           row.style.justifyContent = 'space-between';
-          row.innerHTML = `<span><strong>🚩 ${team}</strong> (${finishes.length}명 제출)</span> <span>평균 ${avgScore}점 / 평균 ${avgTime}초</span>`;
+          row.innerHTML = `<span><strong>🚩 ${team}</strong> (${teamFinishes.length}명 제출)</span> <span>평균 ${avgScore}점 / 평균 ${avgTime}초</span>`;
           summaryList.appendChild(row);
         }
       });
     }
 
-    function resetTeacherRoom() {
-      if (confirm("방을 닫으시겠습니까? (진행된 방의 데이터 로그는 깔끔히 초기화됩니다)")) {
-        if (teacherPollInterval) clearInterval(teacherPollInterval);
-
-        // 해당 방 코드와 관련된 모든 localStorage 키 삭제 (청소)
+    async function resetTeacherRoom() {
+      if (confirm("방을 닫으시겠습니까? (서버의 데이터 로그가 정리됩니다)")) {
         if (activeRoomCode) {
-          localStorage.removeItem(`room_exists_${activeRoomCode}`);
-          localStorage.removeItem(`room_status_${activeRoomCode}`);
-
-          ALL_TEAMS.forEach(team => {
-            localStorage.removeItem(`lobby_${activeRoomCode}_${team}`);
-            localStorage.removeItem(`start_signal_${activeRoomCode}_${team}`);
-            localStorage.removeItem(`finish_${activeRoomCode}_${team}`);
-          });
+          db.ref(`rooms/${activeRoomCode}`).off();
+          await db.ref(`rooms/${activeRoomCode}`).remove();
         }
 
-        activeRoomCode = ""; // 방 코드 초기화
-
+        activeRoomCode = "";
         document.getElementById('teacher-init-box').style.display = 'flex';
         document.getElementById('teacher-active-box').style.display = 'none';
         document.getElementById('teacher-summary-box').style.display = 'none';
@@ -1152,21 +1034,21 @@
       }
     }
 
-    // --- [2. 학생 접속 및 대기실 로직] ---
-    function handleStartClick() {
+    // --- [학생 대기실] ---
+    async function handleStartClick() {
       const nicknameInput = document.getElementById('nickname').value.trim();
       if (!nicknameInput) return alert("이름 또는 별명을 입력해주세요!");
       playerNickname = nicknameInput;
 
-      if (selectedUnits.length === 0) {
-        selectedUnits = [...new Set(quizData.map(q => q.unit))];
-      }
+      if (selectedUnits.length === 0) selectedUnits = [...new Set(quizData.map(q => q.unit))];
 
       if (gameMode === 'team') {
         const codeInput = document.getElementById('room-code').value.trim();
         if (codeInput.length !== 4) return alert("4자리 참여 코드를 올바르게 입력해주세요!");
-        if (!localStorage.getItem(`room_exists_${codeInput}`)) return alert("존재하지 않거나 종료된 방 코드입니다!");
-        
+
+        const snapshot = await db.ref(`rooms/${codeInput}`).once('value');
+        if (!snapshot.exists()) return alert("존재하지 않거나 종료된 방 코드입니다!");
+
         if (!selectedTeam) return alert("참여할 팀을 선택해주세요!");
 
         activeRoomCode = codeInput;
@@ -1180,36 +1062,43 @@
       switchScreen('lobby-screen');
       document.getElementById('lobby-team-title').innerText = `🚩 [코드:${activeRoomCode}] ${selectedTeam}`;
 
-      const lobbyKey = `lobby_${activeRoomCode}_${selectedTeam}`;
-      let members = JSON.parse(localStorage.getItem(lobbyKey) || "[]");
+      const userRef = db.ref(`rooms/${activeRoomCode}/lobbies/${selectedTeam}/${myMemberId}`);
+      userRef.set({
+        id: myMemberId,
+        nickname: playerNickname,
+        joinedAt: firebase.database.ServerValue.TIMESTAMP
+      });
 
-      members = members.filter(m => m.id !== myMemberId);
-      members.push({ id: myMemberId, nickname: playerNickname, joinedAt: Date.now() });
-      localStorage.setItem(lobbyKey, JSON.stringify(members));
+      userRef.onDisconnect().remove();
 
-      updateLobbyUI();
+      lobbyRef = db.ref(`rooms/${activeRoomCode}/lobbies/${selectedTeam}`);
+      lobbyRef.on('value', (snapshot) => {
+        const membersData = snapshot.val();
+        updateLobbyUI(membersData);
+      });
 
-      if (lobbyPollInterval) clearInterval(lobbyPollInterval);
-      lobbyPollInterval = setInterval(updateLobbyUI, 1000);
+      signalRef = db.ref(`rooms/${activeRoomCode}/signals/${selectedTeam}`);
+      signalRef.on('value', (snapshot) => {
+        if (snapshot.val() === 'START') {
+          signalRef.off();
+          lobbyRef.off();
+          startQuizDirect();
+        }
+      });
     }
 
     function leaveLobby() {
       if (gameMode === 'team' && activeRoomCode && selectedTeam) {
-        const lobbyKey = `lobby_${activeRoomCode}_${selectedTeam}`;
-        let members = JSON.parse(localStorage.getItem(lobbyKey) || "[]");
-        members = members.filter(m => m.id !== myMemberId);
-        localStorage.setItem(lobbyKey, JSON.stringify(members));
+        db.ref(`rooms/${activeRoomCode}/lobbies/${selectedTeam}/${myMemberId}`).remove();
       }
     }
 
-    function updateLobbyUI() {
-      const lobbyKey = `lobby_${activeRoomCode}_${selectedTeam}`;
-      let members = JSON.parse(localStorage.getItem(lobbyKey) || "[]");
+    function updateLobbyUI(membersData) {
+      if (!membersData) return;
 
-      if (members.length === 0) return;
-
-      // 대표 결정 로직: 방에 남아있는 사람 중 가장 일찍 들어온 사람을 대표로 승계
+      const members = Object.values(membersData);
       members.sort((a, b) => a.joinedAt - b.joinedAt);
+
       const leader = members[0];
       isLeader = (leader.id === myMemberId);
 
@@ -1237,23 +1126,14 @@
         card.innerText = m.nickname;
         grid.appendChild(card);
       });
-
-      // 팀 출발 신호 수신 확인
-      const signalKey = `start_signal_${activeRoomCode}_${selectedTeam}`;
-      if (localStorage.getItem(signalKey) === 'START') {
-        clearInterval(lobbyPollInterval);
-        startQuizDirect();
-      }
     }
 
     function startTeamQuiz() {
       if (!isLeader) return;
-      localStorage.setItem(`start_signal_${activeRoomCode}_${selectedTeam}`, 'START');
-      clearInterval(lobbyPollInterval);
-      startQuizDirect();
+      db.ref(`rooms/${activeRoomCode}/signals/${selectedTeam}`).set('START');
     }
 
-    // --- [3. 퀴즈 진행 및 완주 동기화] ---
+    // --- [퀴즈 진행 및 결과] ---
     function startQuizDirect() {
       currentQuestions = quizData.filter(q => selectedUnits.includes(q.unit));
       currentQuestions.sort(() => Math.random() - 0.5);
@@ -1360,56 +1240,32 @@
       } else {
         switchScreen('waiting-finish-screen');
         
-        const finishKey = `finish_${activeRoomCode}_${selectedTeam}`;
-        let finishes = JSON.parse(localStorage.getItem(finishKey) || "[]");
-        finishes = finishes.filter(f => f.id !== myMemberId);
-        finishes.push({
+        db.ref(`rooms/${activeRoomCode}/finishes/${selectedTeam}/${myMemberId}`).set({
           id: myMemberId,
           nickname: playerNickname,
           score: score,
           timeSec: myDurationSec
         });
-        localStorage.setItem(finishKey, JSON.stringify(finishes));
 
-        checkTeamFinishStatus();
-        if (finishPollInterval) clearInterval(finishPollInterval);
-        finishPollInterval = setInterval(checkTeamFinishStatus, 1000);
+        finishRef = db.ref(`rooms/${activeRoomCode}`);
+        finishRef.on('value', (snapshot) => {
+          const roomData = snapshot.val();
+          if (!roomData) return;
+
+          const members = roomData.lobbies && roomData.lobbies[selectedTeam] ? Object.values(roomData.lobbies[selectedTeam]) : [];
+          const finishes = roomData.finishes && roomData.finishes[selectedTeam] ? Object.values(roomData.finishes[selectedTeam]) : [];
+
+          document.getElementById('waiting-count-text').innerText = `완료 현황: ${members.length}명 중 ${finishes.length}명 제출 완료`;
+
+          if ((members.length > 0 && finishes.length >= members.length) || roomData.status === 'FORCE_FINISHED') {
+            finishRef.off();
+            renderFinalResult();
+          }
+        });
       }
     }
 
-    function checkTeamFinishStatus() {
-      const lobbyKey = `lobby_${activeRoomCode}_${selectedTeam}`;
-      const finishKey = `finish_${activeRoomCode}_${selectedTeam}`;
-
-      const members = JSON.parse(localStorage.getItem(lobbyKey) || "[]");
-      const finishes = JSON.parse(localStorage.getItem(finishKey) || "[]");
-
-      document.getElementById('waiting-count-text').innerText = `완료 현황: ${members.length}명 중 ${finishes.length}명 제출 완료`;
-
-      const roomStatus = localStorage.getItem(`room_status_${activeRoomCode}`);
-
-      // 조건: 전원 완료 OR 교사 강제 종료 신호
-      if ((members.length > 0 && finishes.length >= members.length) || roomStatus === 'FORCE_FINISHED') {
-        clearInterval(finishPollInterval);
-        renderFinalResult();
-      }
-    }
-
-    function handleStorageEvent(e) {
-      if (gameMode === 'team') {
-        const signalKey = `start_signal_${activeRoomCode}_${selectedTeam}`;
-        if (e.key === signalKey && e.newValue === 'START') {
-          clearInterval(lobbyPollInterval);
-          startQuizDirect();
-        }
-        if (e.key === `room_status_${activeRoomCode}` && e.newValue === 'FORCE_FINISHED') {
-          checkTeamFinishStatus();
-        }
-      }
-    }
-
-    // --- [5. 학생 결과 화면 및 완벽 무작위 정렬] ---
-    function renderFinalResult() {
+    async function renderFinalResult() {
       switchScreen('result-screen');
 
       const minutes = Math.floor(myDurationSec / 60);
@@ -1447,9 +1303,10 @@
       });
     }
 
-    function calculateAndShowTeamResults() {
-      const finishKey = `finish_${activeRoomCode}_${selectedTeam}`;
-      const finishes = JSON.parse(localStorage.getItem(finishKey) || "[]");
+    async function calculateAndShowTeamResults() {
+      const snapshot = await db.ref(`rooms/${activeRoomCode}/finishes/${selectedTeam}`).once('value');
+      const finishesObj = snapshot.val() || {};
+      const finishes = Object.values(finishesObj);
 
       if (finishes.length === 0) return;
 
@@ -1463,7 +1320,6 @@
       const avgSeconds = avgTimeSec % 60;
       const avgTimeString = avgMinutes > 0 ? `${avgMinutes}분 ${avgSeconds}초` : `${avgSeconds}초`;
 
-      // 🔒 풀이 속도 특정 방지를 위한 무작위(랜덤) 셔플 정렬
       const shuffledFinishes = [...finishes].sort(() => Math.random() - 0.5);
       const memberNames = shuffledFinishes.map(m => m.nickname).join(', ');
 
@@ -1493,9 +1349,6 @@
 
     function resetToMain() {
       leaveLobby();
-      if (lobbyPollInterval) clearInterval(lobbyPollInterval);
-      if (finishPollInterval) clearInterval(finishPollInterval);
-      
       document.getElementById('review-container').style.display = 'none';
       switchScreen('start-screen');
     }
